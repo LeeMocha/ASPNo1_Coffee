@@ -1,0 +1,76 @@
+<core:FragmentDefinition
+xmlns:core="sap.ui.core"
+xmlns="sap.m"
+xmlns:mvc="sap.ui.core.mvc"
+xmlns:u="sap.ui.unified"
+xmlns:t="sap.ui.table"
+height="100%">
+    <Panel >
+        <t:Table id='headTable'
+        rows='{orderModel>/}'
+        rowActionCount="1"
+        sort="{orderModel>/OrderCode}"
+        selectionMode="MultiToggle"
+        >
+            <t:extension>
+                <OverflowToolbar style="Clear">
+                            <core:Icon src="sap-icon://sales-order-item" alt="Chains" size="1.25rem"/>
+                            <Title text="주문 리스트" titleStyle="H3"></Title>
+                            <ToolbarSpacer></ToolbarSpacer>
+                            <Title text="{= '검색결과 : '+'지점'}" titleStyle="H5" />
+                </OverflowToolbar>
+            </t:extension>
+            <t:rowActionTemplate>
+                <t:RowAction >
+                    <t:RowActionItem type="Navigation" press=".onMove"></t:RowActionItem>
+                </t:RowAction>
+            </t:rowActionTemplate>
+            <t:columns>
+                <t:Column sortProperty="OrderCode" showSortMenuEntry="true">
+                    <Label text="주문 번호" design="Bold"/>
+                    <t:template>
+                        <Label text="{orderModel>OrderCode}" />
+                    </t:template>
+                </t:Column>
+                <t:Column sortProperty="OrderDate" showSortMenuEntry="true">
+                    <Label text="주문 날짜" design="Bold"/>
+                    <t:template>
+                        <Text text="{
+                            path: 'orderModel>OrderDate',
+                            type: 'sap.ui.model.type.Date',
+                            formatOptions: {
+                                style: 'full'
+                            }
+                        }" />
+                    </t:template>
+                </t:Column>
+                <t:Column sortProperty="OrderTime" showSortMenuEntry="true">
+                    <Label text="주문 시간" design="Bold"/>
+                    <t:template>
+                        <Text text="{
+                            path: 'orderModel>OrderDate',
+                            type: 'sap.ui.model.type.Time',
+                            formatOptions: {
+                                style: 'medium'
+                            }
+                        }" />
+                    </t:template>
+                </t:Column>
+                <t:Column sortProperty="TotalAmount" showSortMenuEntry="true">
+                    <Label text="총 금액" design="Bold"/>
+                    <t:template>
+                        <u:Currency stringValue="{orderModel>TotalAmount}" currency="{orderModel>Tunit}"/>
+                    </t:template>
+                </t:Column>
+                <t:Column sortProperty="OrderItems" showSortMenuEntry="true">
+                    <Label text="상세 메뉴" design="Bold"/>
+                    <t:template>
+                        <GenericTag text="총" status="Information" press="onPressOpenPopover" design="StatusIconHidden">
+                        <ObjectNumber number="{orderModel>TotalMenu}" emptyIndicatorMode="Off"  unit="개"></ObjectNumber>
+                    </GenericTag>
+                </t:template>
+            </t:Column>
+        </t:columns>
+    </t:Table>
+    </Panel>
+</core:FragmentDefinition>

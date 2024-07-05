@@ -1,0 +1,54 @@
+<core:FragmentDefinition
+xmlns:core="sap.ui.core"
+xmlns="sap.m"
+xmlns:mvc="sap.ui.core.mvc"
+xmlns:u="sap.ui.unified"
+height="100%">
+    <Panel >
+        <Table id="inventoryTable" inset="false" items="{path:'inventoryModel>/'}">
+            <headerToolbar>
+                <OverflowToolbar >
+                    <Title text="내 재고" titleStyle="H3"></Title>
+                </OverflowToolbar>
+            </headerToolbar>
+               <columns>
+                    <Column width="12rem">
+                        <Label text="재료명" design="Bold" />
+                    </Column>
+                    <Column hAlign="End" >
+                        <Label text="남은 량" design="Bold"/>
+                    </Column>
+                    <!-- <Column>
+                        <Label text="단위" design="Bold"/>
+                    </Column> -->
+                    <Column hAlign="Center" width="10rem">
+                        <Label text="KRW/unit" design="Bold"/>
+                    </Column>
+                    <Column hAlign="Center" width="10rem">
+                        <Label text="사용 비율" design="Bold"/>
+                    </Column>
+                    <Column width="4rem">
+                        <Label text="폐기" design="Bold"/>
+                    </Column>
+                    <Column width="4rem">
+                        <Label text="구매" design="Bold"/>
+                    </Column>
+                </columns>
+            <items>
+                <ColumnListItem>
+                    <cells>
+                        <Text text="{inventoryModel>MaterialName}" />
+                        <!-- <Text text="{inventoryModel>InventoryQuantity}"/>
+                        <Text text="{inventoryModel>Qunit}" /> -->
+                        <u:Currency stringValue="{inventoryModel>InventoryQuantity}" currency="{inventoryModel>Qunit}"/>
+                        <!-- <u:Currency stringValue="{inventoryModel>Ppq}" currency="{inventoryModel>Unit}"/> -->
+                        <Text text="{= ${inventoryModel>Ppq} + '    ' + ${inventoryModel>Unit}}"  renderWhitespace="true"/>
+                        <Text text="{inventoryModel>Ppq}" />
+                        <Button icon="sap-icon://delete"/>
+                        <Button icon="sap-icon://add-product"/>
+                    </cells>
+                </ColumnListItem>
+            </items>
+        </Table>
+    </Panel>
+</core:FragmentDefinition>

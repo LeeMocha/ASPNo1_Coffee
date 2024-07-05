@@ -1,8 +1,90 @@
 <mvc:View controllerName="aspno1coffee.controller.Main"
-    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
-    xmlns="sap.m">
-    <Page id="page" title="{i18n>title}">
-        <content >
-        </content >
-    </Page>
+displayBlock="true"
+xmlns:mvc="sap.ui.core.mvc"
+xmlns="sap.m"
+xmlns:f="sap.f"
+xmlns:layout="sap.ui.layout"
+xmlns:core="sap.ui.core"
+height="100%">
+<f:DynamicPage id="Main"
+			stickySubheaderProvider="iconTabBar"
+			class="sapUiNoContentPadding"
+			toggleHeaderOnTitleClick="{/titleClickable}">
+			<!-- DynamicPage Title -->
+			<f:title>
+				<f:DynamicPageTitle>
+					<f:heading>
+						<Title text="ASPNo.1 Coffee" class="sapUiSmallMarginBottom"/>
+					</f:heading>
+					<f:expandedContent>					
+						<HeaderContainer id="headerContainer" showOverflowItem="true" showDividers="true">
+							<layout:HorizontalLayout >
+								<Label text="일일 매출: " vAlign="Bottom" class="sapUiSmallMarginEnd"/>
+								<ObjectNumber textAlign="End" class="sapMObjectNumberLarge" number="4809000" unit="KRW" state="Success"/>
+							</layout:HorizontalLayout>
+							<layout:HorizontalLayout>
+								<Label text="일일 순익: " vAlign="Bottom" class="sapUiSmallMarginEnd"/>
+								<ObjectNumber textAlign="End" class="sapMObjectNumberLarge" number="3897654" unit="KRW" state="Success" />
+							</layout:HorizontalLayout>
+							<ProgressIndicator percentValue="30" displayValue="{='당월 목표: '+'30'+'%'}" width="12rem" state="Warning" class="sapUiMediumMarginEnd"/>
+							<ProgressIndicator percentValue="80" displayValue="{='당일 목표: '+'80'+'%'}" width="12rem" state="Success" class="sapUiMediumMarginEnd"/>
+						</HeaderContainer >
+					</f:expandedContent>
+					<f:content>
+						<OverflowToolbar>
+							<GenericTag text="SR"
+								status="Error"
+								press="onGenericTagPress"
+								design="StatusIconHidden">
+								<ObjectNumber number="2"
+									unit="M"
+									emphasized="false"
+									state="Error"/>
+							</GenericTag>
+						</OverflowToolbar>
+					</f:content>
+					<f:actions>
+						<Button text="수정" type="Emphasized"/>
+						<Button icon="sap-icon://action" type="Transparent"/>
+					</f:actions>
+				</f:DynamicPageTitle>
+			</f:title>
+			<!-- DynamicPage Header -->
+			<f:header>
+				<f:DynamicPageHeader pinnable="true">
+
+				</f:DynamicPageHeader>
+			</f:header>
+			<f:content>
+				<IconTabBar id="iconTabBar" class="sapUiResponsiveContentPadding">
+					<items>
+						<IconTabFilter text="데시보드">
+							<core:Fragment fragmentName="aspno1coffee.view.Fragments.DashBoard" type="XML" />
+						</IconTabFilter>
+						<IconTabFilter text="주문현황">
+							<core:Fragment fragmentName="aspno1coffee.view.Fragments.Order" type="XML" />
+						</IconTabFilter>
+						<IconTabFilter text="재고현황">
+							<core:Fragment fragmentName="aspno1coffee.view.Fragments.Inventory" type="XML" />
+						</IconTabFilter>
+						<IconTabFilter text="지출현황">
+							<Text text="People content goes here ..." />
+						</IconTabFilter>
+					</items>
+				</IconTabBar>
+			</f:content>
+			<!-- DynamicPage Footer -->
+			<f:footer>
+				<OverflowToolbar>
+					<Button icon="sap-icon://message-popup"
+						text="{/messagesLength}"
+						type="Emphasized"
+						press="onMessageButtonPress"
+						visible="{= !!${/messagesLength}}"/>
+					<ToolbarSpacer/>
+					<Button type="Accept" text="Accept"/>
+					<Button type="Reject" text="Reject"/>
+				</OverflowToolbar>
+			</f:footer>
+		</f:DynamicPage>
 </mvc:View>

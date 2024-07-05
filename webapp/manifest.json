@@ -24,6 +24,33 @@
           "localUri": "localService/metadata.xml",
           "odataVersion": "2.0"
         }
+      },
+      "orderService": {
+        "uri": "/sap/opu/odata/sap/YUI_ORDER_JH/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/metadata.xml",
+          "odataVersion": "2.0"
+        }
+      },
+      "menuService": {
+        "uri": "/sap/opu/odata/sap/YUI_MENU_JH/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/metadata.xml",
+          "odataVersion": "2.0"
+        }
+      },
+      "materialService": {
+        "uri": "/sap/opu/odata/sap/YUI_MATERIAL_JH/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/metadata.xml",
+          "odataVersion": "2.0"
+        }
       }
     }
   },
@@ -41,10 +68,11 @@
       "desktop": true,
       "tablet": true,
       "phone": true
-    }
+    },
+    "fullWidth": true
   },
   "sap.ui5": {
-    "flexEnabled": true,
+    "flexEnabled": false,
     "dependencies": {
       "minUI5Version": "1.120.15",
       "libs": {
@@ -73,6 +101,21 @@
         "dataSource": "mainService",
         "preload": true,
         "settings": {}
+      },
+      "Order": {
+        "dataSource": "orderService",
+        "preload": true,
+        "settings": {}
+      },
+      "Menu": {
+        "dataSource": "menuService",
+        "preload": true,
+        "settings": {}
+      },
+      "Material": {
+        "dataSource": "materialService",
+        "preload": true,
+        "settings": {}
       }
     },
     "resources": {
@@ -94,15 +137,15 @@
       },
       "routes": [
         {
-          "name": "RouteMain",
+          "name": "Main",
           "pattern": ":?query:",
           "target": [
-            "TargetMain"
+            "Main"
           ]
         }
       ],
       "targets": {
-        "TargetMain": {
+        "Main": {
           "viewType": "XML",
           "transition": "slide",
           "clearControlAggregation": false,
