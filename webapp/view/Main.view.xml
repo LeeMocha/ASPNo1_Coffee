@@ -1,0 +1,8 @@
+<mvc:View controllerName="aspno1coffee.controller.Main"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+    xmlns="sap.m">
+    <Page id="page" title="{i18n>title}">
+        <content >
+        </content >
+    </Page>
+</mvc:View>
