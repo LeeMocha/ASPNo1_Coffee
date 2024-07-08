@@ -1,0 +1,31 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core"
+	xmlns:f="sap.f"
+	xmlns:card="sap.f.cards">
+	<Popover placement="Bottom" showHeader="false">
+		<f:Card class="sapUiMediumMargin" width="300px">
+			<f:header>
+				<card:Header title="상세 메뉴"/>
+			</f:header>
+			<f:content>
+				<List
+					class="sapUiSmallMarginBottom"
+					showSeparators="None"
+					items="{
+						path: 'orderItemModel>/'
+					}">
+					<CustomListItem>
+						<HBox alignItems="Center" justifyContent="SpaceBetween">
+							<VBox class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom" >
+								<Title level="H3" text="{orderItemModel>MenuName}" />
+								<ObjectNumber class="sapUiTinyMargin sapUiSmallMarginEnd" number="{orderItemModel>MenuCnt}" unit="EA" state="Success"></ObjectNumber>
+							</VBox>
+							<ObjectNumber class="sapUiTinyMargin sapUiSmallMarginEnd" number="{orderItemModel>MenuPrice}" unit="KRW" state="Warning"></ObjectNumber>
+						</HBox>
+					</CustomListItem>
+				</List>
+			</f:content>
+		</f:Card>
+	</Popover>
+</core:FragmentDefinition>

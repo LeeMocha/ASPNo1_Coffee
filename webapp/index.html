@@ -22,6 +22,11 @@
         data-sap-ui-async="true"
         data-sap-ui-frameOptions="trusted"
     ></script>
+    <script
+        id="sap-ui-bootstrap"
+        src="https://ui5.sap.com/resources/sap-ui-integration.js"
+        data-sap-ui-compatVersion="edge">
+  </script>
 </head>
 <body class="sapUiBody sapUiSizeCompact" id="content">
     <div
@@ -31,5 +36,8 @@
         data-settings='{"id" : "aspno1coffee"}'
         data-handle-validation="true"
     ></div>
+    <ui-integration-card
+        manifest="../manifest.json">
+    </ui-integration-card>
 </body>
 </html>

@@ -4,30 +4,48 @@ xmlns="sap.m"
 xmlns:mvc="sap.ui.core.mvc"
 xmlns:u="sap.ui.unified"
 xmlns:t="sap.ui.table"
+xmlns:f="sap.ui.layout.form"
 height="100%">
     <Panel >
-        <t:Table id='headTable'
+        <t:Table id='orderTable'
         rows='{orderModel>/}'
-        rowActionCount="1"
         sort="{orderModel>/OrderCode}"
         selectionMode="MultiToggle"
         >
             <t:extension>
                 <OverflowToolbar style="Clear">
-                            <core:Icon src="sap-icon://sales-order-item" alt="Chains" size="1.25rem"/>
+                            <core:Icon src="sap-icon://sales-order-item" alt="Chains" size="1.25rem" class="sapUiSmallMarginEnd"/>
                             <Title text="주문 리스트" titleStyle="H3"></Title>
                             <ToolbarSpacer></ToolbarSpacer>
-                            <Title text="{= '검색결과 : '+'지점'}" titleStyle="H5" />
+                            <Button icon="sap-icon://refresh" press="refresh"></Button>
                 </OverflowToolbar>
+                <VBox>
+                    <f:SimpleForm id="InsuranceEdit"
+                        editable="true"
+                        layout="ColumnLayout"
+                        columnsM="2"
+                        columnsL="3"
+                        columnsXL="4"
+                        >
+                        <f:content>
+                            <core:Title text="일자 조회" />
+                            <DatePicker
+                                id="DP10"
+                                value="{
+                                    'path': 'searchModel>/dateVar',
+                                    'type': 'sap.ui.model.type.Date',
+                                    'formatOptions': {
+                                    'pattern': 'yyyyMMdd'
+                                    }
+                                }"
+                                change="handleChange"/>
+                        </f:content>
+                    </f:SimpleForm>
+                </VBox>
             </t:extension>
-            <t:rowActionTemplate>
-                <t:RowAction >
-                    <t:RowActionItem type="Navigation" press=".onMove"></t:RowActionItem>
-                </t:RowAction>
-            </t:rowActionTemplate>
             <t:columns>
                 <t:Column sortProperty="OrderCode" showSortMenuEntry="true">
-                    <Label text="주문 번호" design="Bold"/>
+                    <Label text="주문 번호" design="Bold" textAlign="Center"/>
                     <t:template>
                         <Label text="{orderModel>OrderCode}" />
                     </t:template>
@@ -62,7 +80,7 @@ height="100%">
                         <u:Currency stringValue="{orderModel>TotalAmount}" currency="{orderModel>Tunit}"/>
                     </t:template>
                 </t:Column>
-                <t:Column sortProperty="OrderItems" showSortMenuEntry="true">
+                <t:Column sortProperty="OrderItems" showSortMenuEntry="true" hAlign="Center">
                     <Label text="상세 메뉴" design="Bold"/>
                     <t:template>
                         <GenericTag text="총" status="Information" press="onPressOpenPopover" design="StatusIconHidden">

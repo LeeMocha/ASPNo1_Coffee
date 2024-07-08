@@ -8,7 +8,10 @@ height="100%">
         <Table id="inventoryTable" inset="false" items="{path:'inventoryModel>/'}">
             <headerToolbar>
                 <OverflowToolbar >
+                    <core:Icon src="sap-icon://product" alt="Chains" size="1.25rem" class="sapUiSmallMarginEnd"/>
                     <Title text="내 재고" titleStyle="H3"></Title>
+                    <ToolbarSpacer></ToolbarSpacer>
+                    <Button icon="sap-icon://refresh" press="refresh"></Button>
                 </OverflowToolbar>
             </headerToolbar>
                <columns>
@@ -40,10 +43,10 @@ height="100%">
                         <Text text="{inventoryModel>MaterialName}" />
                         <!-- <Text text="{inventoryModel>InventoryQuantity}"/>
                         <Text text="{inventoryModel>Qunit}" /> -->
-                        <u:Currency stringValue="{inventoryModel>InventoryQuantity}" currency="{inventoryModel>Qunit}"/>
+                        <ObjectNumber number="{inventoryModel>InventoryQuantity}" state="{inventoryModel>inventoryState}" unit="{inventoryModel>Qunit}"/>
                         <!-- <u:Currency stringValue="{inventoryModel>Ppq}" currency="{inventoryModel>Unit}"/> -->
                         <Text text="{= ${inventoryModel>Ppq} + '    ' + ${inventoryModel>Unit}}"  renderWhitespace="true"/>
-                        <Text text="{inventoryModel>Ppq}" />
+                        <Text text="{= ${inventoryModel>usingRate} + '%'}" />
                         <Button icon="sap-icon://delete"/>
                         <Button icon="sap-icon://add-product"/>
                     </cells>

@@ -5,6 +5,8 @@ xmlns:mvc="sap.ui.core.mvc"
 xmlns:f="sap.f"
 xmlns:card="sap.f.cards"
 xmlns:w="sap.ui.integration.widgets"
+xmlns:chart="sap.suite.ui.microchart"
+xmlns:layout="sap.ui.layout"
 displayBlock="true"
 height="100%">
     <ScrollContainer
@@ -28,7 +30,7 @@ height="100%">
 				<f:GridContainerSettings rowSize="70px" columnSize="70px" gap="8px" />
 			</f:layoutXS>
 
-			<GenericTile header="Sales Fulfillment Application Title" subheader="Subtitle">
+			<!-- <GenericTile header="Sales Fulfillment Application Title" subheader="Subtitle">
 				<layoutData>
 					<f:GridContainerItemLayoutData minRows="2" columns="2" />
 				</layoutData>
@@ -80,25 +82,51 @@ height="100%">
 				<TileContent>
 					<ImageContent src="sap-icon://travel-expense" />
 				</TileContent>
-			</GenericTile>
-
-			<GenericTile header="Success Map" subheader="Access Success Map">
+			</GenericTile> -->
+			<w:Card manifest="{manifests>/analytical}">
+				<w:layoutData>
+					<f:GridContainerItemLayoutData rows="5" columns="13" />
+				</w:layoutData>
+			</w:Card>
+			<w:Card manifest="{manifests>/donut}">
+				<w:layoutData>
+					<f:GridContainerItemLayoutData rows="5" columns="6" />
+				</w:layoutData>
+			</w:Card>
+			<w:Card manifest="{manifests>/stackedColumn}">
+				<w:layoutData>
+					<f:GridContainerItemLayoutData rows="5" columns="9" />
+				</w:layoutData>
+			</w:Card>
+			<!-- <GenericTile header="Success Map" subheader="Access Success Map">
 				<layoutData>
-					<f:GridContainerItemLayoutData minRows="2" columns="2" />
+					<f:GridContainerItemLayoutData minRows="4" columns="10" />
 				</layoutData>
-				<TileContent unit="EUR" footer="Current Quarter">
-					<ImageContent src="sap-icon://map-3" />
+				<TileContent >
+					<Text text="Semantic colors - Criticality" class="sapUiSmallMargin"/>
+					<FlexBox width="20rem" height="10rem" alignItems="Center" class="sapUiSmallMargin">
+						<chart:InteractiveLineChart selectionChanged="selectionChanged" press="press" succeedingPoint="15">
+							<chart:points>
+								<chart:InteractiveLineChartPoint value="11" label="May" color="Neutral"/>
+								<chart:InteractiveLineChartPoint value="25.2" label="June" color="Neutral"/>
+								<chart:InteractiveLineChartPoint value="39.8" label="July" color="Neutral"/>
+								<chart:InteractiveLineChartPoint value="45.8" label="Aug" color="Neutral"/>
+								<chart:InteractiveLineChartPoint value="17.9" label="Sep" color="Neutral"/>
+								<chart:InteractiveLineChartPoint value="2.2" label="Oct" color="Critical"/>
+							</chart:points>
+						</chart:InteractiveLineChart>
+					</FlexBox>
 				</TileContent>
-			</GenericTile>
+			</GenericTile> -->
 
-			<GenericTile header="My Team Calendar">
+			<!-- <GenericTile header="My Team Calendar">
 				<layoutData>
 					<f:GridContainerItemLayoutData minRows="2" columns="2" />
 				</layoutData>
 				<TileContent unit="EUR" footer="Current Quarter">
 					<ImageContent src="sap-icon://check-availability" />
 				</TileContent>
-			</GenericTile>
+			</GenericTile> -->
 		</f:GridContainer>
 	</ScrollContainer>
 </core:FragmentDefinition>
