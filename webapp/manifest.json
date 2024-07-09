@@ -51,6 +51,15 @@
           "localUri": "localService/metadata.xml",
           "odataVersion": "2.0"
         }
+      },
+      "paymentService": {
+        "uri": "/sap/opu/odata/sap/YAPI_PAYMENT_JH/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/metadata.xml",
+          "odataVersion": "2.0"
+        }
       }
     },
     "crossNavigation": {
@@ -128,6 +137,11 @@
       },
       "Material": {
         "dataSource": "materialService",
+        "preload": true,
+        "settings": {}
+      },
+      "Payment": {
+        "dataSource": "paymentService",
         "preload": true,
         "settings": {}
       }

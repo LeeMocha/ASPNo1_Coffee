@@ -15,25 +15,28 @@ height="100%">
                 </OverflowToolbar>
             </headerToolbar>
                <columns>
-                    <Column width="12rem">
+                    <Column minScreenWidth="Tablet" demandPopin="true" width="12rem" popinDisplay="Inline">
                         <Label text="재료명" design="Bold" />
                     </Column>
-                    <Column hAlign="End" >
-                        <Label text="남은 량" design="Bold"/>
+                    <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="false" width="8rem" popinDisplay="Inline">
+                        <Label text="기본단위" design="Bold" />
                     </Column>
-                    <!-- <Column>
-                        <Label text="단위" design="Bold"/>
-                    </Column> -->
-                    <Column hAlign="Center" width="10rem">
+                    <Column hAlign="End" minScreenWidth="Tablet" demandPopin="true" width="6rem" popinDisplay="Inline">
+                        <Label text="개수" design="Bold" />
+                    </Column>
+                    <Column hAlign="End" minScreenWidth="Tablet" demandPopin="true" width="12rem" popinDisplay="Inline">
+                        <Label text="총 남은 량" design="Bold"/>
+                    </Column>
+                    <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="false" width="10rem" popinDisplay="Inline">
                         <Label text="KRW/unit" design="Bold"/>
                     </Column>
-                    <Column hAlign="Center" width="10rem">
+                    <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="false" width="10rem" popinDisplay="Inline">
                         <Label text="사용 비율" design="Bold"/>
                     </Column>
-                    <Column width="4rem">
+                    <Column width="4rem" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
                         <Label text="폐기" design="Bold"/>
                     </Column>
-                    <Column width="4rem">
+                    <Column width="4rem" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
                         <Label text="구매" design="Bold"/>
                     </Column>
                 </columns>
@@ -41,10 +44,9 @@ height="100%">
                 <ColumnListItem>
                     <cells>
                         <Text text="{inventoryModel>MaterialName}" />
-                        <!-- <Text text="{inventoryModel>InventoryQuantity}"/>
-                        <Text text="{inventoryModel>Qunit}" /> -->
+                        <ObjectNumber number="{inventoryModel>MaterialQuantity}" state="None" unit="{inventoryModel>Qunit}"/>
+                        <ObjectNumber number="{inventoryModel>baseQuantity}" state="Information" unit="EA"/>
                         <ObjectNumber number="{inventoryModel>InventoryQuantity}" state="{inventoryModel>inventoryState}" unit="{inventoryModel>Qunit}"/>
-                        <!-- <u:Currency stringValue="{inventoryModel>Ppq}" currency="{inventoryModel>Unit}"/> -->
                         <Text text="{= ${inventoryModel>Ppq} + '    ' + ${inventoryModel>Unit}}"  renderWhitespace="true"/>
                         <Text text="{= ${inventoryModel>usingRate} + '%'}" />
                         <Button icon="sap-icon://delete"/>

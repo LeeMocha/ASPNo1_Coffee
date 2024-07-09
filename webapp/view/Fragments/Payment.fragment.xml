@@ -6,16 +6,37 @@ xmlns:u="sap.ui.unified"
 xmlns:t="sap.ui.table"
 xmlns:f="sap.ui.layout.form"
 height="100%">
+    <Panel class="sapUiMediumMarginBottom">
+        <OverflowToolbar style="Clear">
+            <core:Icon src="sap-icon://receipt" alt="Chains" size="1.25rem" class="sapUiSmallMarginEnd"/>
+            <Title text="지출 입력" titleStyle="H3"></Title>
+            <ToolbarSpacer></ToolbarSpacer>
+        </OverflowToolbar>
+        <f:SimpleForm
+            editable="true"
+            layout="ColumnLayout"
+        >
+        <Label text="지출 내역 " ></Label>
+        <Input maxLength="100" width="30rem" class="sapUiSmallMarginEnd" value="{paymentInputModel>/PaymentDescription}"></Input>
+        <Label text="지출 총액 "></Label>
+        <Input width="15rem" type="Number" value="{paymentInputModel>/PaymentAmount}"></Input>
+        <Text text="KRW" class="sapUiSmallMarginStart"></Text>
+        </f:SimpleForm>
+        <OverflowToolbar style="Clear">
+            <ToolbarSpacer></ToolbarSpacer>
+            <Button text="내역 저장" press="insertPayment" type="Emphasized" />
+        </OverflowToolbar>
+    </Panel>
     <Panel >
-        <t:Table id='orderTable'
-        rows='{orderModel>/}'
-        sort="{orderModel>/OrderCode}"
+        <t:Table id='paymentTable'
+        rows='{paymentModel>/}'
+        sort="{paymentModel>/PaymentDate}"
         selectionMode="MultiToggle"
         >
             <t:extension>
                 <OverflowToolbar style="Clear">
                             <core:Icon src="sap-icon://sales-order-item" alt="Chains" size="1.25rem" class="sapUiSmallMarginEnd"/>
-                            <Title text="주문 리스트" titleStyle="H3"></Title>
+                            <Title text="지출 리스트" titleStyle="H3"></Title>
                             <ToolbarSpacer></ToolbarSpacer>
                             <Button icon="sap-icon://refresh" press="refresh"></Button>
                 </OverflowToolbar>
@@ -30,9 +51,9 @@ height="100%">
                         <f:content>
                             <core:Title text="일자 조회" />
                             <DatePicker
-                                id="datePicker"
+                                id="datePicker2"
                                 value="{
-                                    'path': 'searchModel>/dateVar',
+                                    'path': 'searchModel2>/dateVar',
                                     'type': 'sap.ui.model.type.Date',
                                     'formatOptions': {
                                         'pattern': 'yyyyMMdd'
@@ -45,17 +66,17 @@ height="100%">
                 </HBox>
             </t:extension>
             <t:columns>
-                <t:Column sortProperty="OrderCode" showSortMenuEntry="true">
-                    <Label text="주문 번호" design="Bold" textAlign="Center"/>
+                <t:Column sortProperty="PaymentDescription" showSortMenuEntry="true">
+                    <Label text="지출 내역" design="Bold"/>
                     <t:template>
-                        <Label text="{orderModel>OrderCode}" />
+                        <Label text="{paymentModel>PaymentDescription}" />
                     </t:template>
                 </t:Column>
-                <t:Column sortProperty="OrderDate" showSortMenuEntry="true">
-                    <Label text="주문 날짜" design="Bold"/>
+                <t:Column sortProperty="PaymentDate" showSortMenuEntry="true">
+                    <Label text="지출 날짜" design="Bold"/>
                     <t:template>
                         <Text text="{
-                            path: 'orderModel>OrderDate',
+                            path: 'paymentModel>PaymentDate',
                             type: 'sap.ui.model.type.Date',
                             formatOptions: {
                                 style: 'full'
@@ -63,11 +84,11 @@ height="100%">
                         }" />
                     </t:template>
                 </t:Column>
-                <t:Column sortProperty="OrderTime" showSortMenuEntry="true">
-                    <Label text="주문 시간" design="Bold"/>
+                <t:Column sortProperty="PaymentTime" showSortMenuEntry="true">
+                    <Label text="지출 시간" design="Bold"/>
                     <t:template>
                         <Text text="{
-                            path: 'orderModel>OrderDate',
+                            path: 'paymentModel>PaymentDate',
                             type: 'sap.ui.model.type.Time',
                             formatOptions: {
                                 style: 'medium'
@@ -75,21 +96,13 @@ height="100%">
                         }" />
                     </t:template>
                 </t:Column>
-                <t:Column sortProperty="TotalAmount" showSortMenuEntry="true">
-                    <Label text="총 금액" design="Bold"/>
+                <t:Column sortProperty="PaymentAmount" showSortMenuEntry="true"  hAlign="End">
+                    <Label text="지출 총 금액" design="Bold"/>
                     <t:template>
-                        <u:Currency stringValue="{orderModel>TotalAmount}" currency="{orderModel>Tunit}"/>
+                        <u:Currency stringValue="{paymentModel>PaymentAmount}" currency="{paymentModel>Unit}"/>
                     </t:template>
                 </t:Column>
-                <t:Column sortProperty="OrderItems" showSortMenuEntry="true" hAlign="Center">
-                    <Label text="상세 메뉴" design="Bold"/>
-                    <t:template>
-                        <GenericTag text="총" status="Information" press="onPressOpenPopover" design="StatusIconHidden">
-                        <ObjectNumber number="{orderModel>TotalMenu}" emptyIndicatorMode="Off"  unit="개"></ObjectNumber>
-                    </GenericTag>
-                </t:template>
-            </t:Column>
-        </t:columns>
-    </t:Table>
+            </t:columns>
+        </t:Table>
     </Panel>
 </core:FragmentDefinition>

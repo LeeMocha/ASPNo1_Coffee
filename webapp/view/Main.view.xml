@@ -34,17 +34,6 @@ height="100%">
 							<ProgressIndicator percentValue="80" displayValue="{='당일 목표: '+'80'+'%'}" width="12rem" state="Success" class="sapUiMediumMarginEnd"/>
 						</HeaderContainer >
 					</f:expandedContent>
-					<!-- <f:content>
-						<OverflowToolbar>
-							<GenericTag text="주문 건수:"
-								status="Success"
-								design="StatusIconHidden">
-								<ObjectNumber number="{headerModel>/totalMenu}"
-									emphasized="false"
-									state="Error"/>
-							</GenericTag>
-						</OverflowToolbar>
-					</f:content> -->
 					<f:actions>
 						<Button text="수정" type="Emphasized"/>
 						<Button icon="sap-icon://action" type="Transparent"/>
@@ -58,7 +47,7 @@ height="100%">
 				</f:DynamicPageHeader>
 			</f:header>
 			<f:content>
-				<IconTabBar id="iconTabBar" class="sapUiResponsiveContentPadding">
+				<IconTabBar id="iconTabBar" class="sapUiResponsiveContentPadding" select="onTabSelect">
 					<items>
 						<IconTabFilter text="데시보드">
 							<core:Fragment fragmentName="aspno1coffee.view.Fragments.DashBoard" type="XML" />
@@ -70,7 +59,7 @@ height="100%">
 							<core:Fragment fragmentName="aspno1coffee.view.Fragments.Inventory" type="XML" />
 						</IconTabFilter>
 						<IconTabFilter text="지출현황">
-							<Text text="People content goes here ..." />
+							<core:Fragment fragmentName="aspno1coffee.view.Fragments.Payment" type="XML" />
 						</IconTabFilter>
 					</items>
 				</IconTabBar>
