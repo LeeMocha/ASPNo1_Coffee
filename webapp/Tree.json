@@ -1,0 +1,40 @@
+[
+	{
+		"text": "Node1",
+        "state": true,
+		"nodes":
+		[
+			{
+				"text": "Node1-1",
+				"ref": "sap-icon://add"
+			},
+			{
+				"text": "Node1-2",
+				"ref": "sap-icon://add"
+			}
+		]
+	},
+	{
+		"text": "Node2",
+        "state": true,
+        "nodes": 
+        [
+			{
+				"text": "Node1-1",
+				"ref": "sap-icon://add"
+			},
+			{
+				"text": "Node1-2",
+				"ref": "sap-icon://add"
+			},			
+            {
+				"text": "Node1-1",
+				"ref": "sap-icon://add"
+			},
+			{
+				"text": "Node1-2",
+				"ref": "sap-icon://add"
+			}
+        ]
+	}
+]

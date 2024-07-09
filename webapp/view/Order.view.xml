@@ -1,0 +1,101 @@
+<mvc:View controllerName="aspno1coffee.controller.Order"
+displayBlock="true"
+xmlns:mvc="sap.ui.core.mvc"
+xmlns="sap.m"
+xmlns:l="sap.ui.layout"
+xmlns:f="sap.f"
+xmlns:core="sap.ui.core"
+height="100%">
+	<l:ResponsiveSplitter defaultPane="default">
+		<l:PaneContainer resize=".onRootContainerResize">
+			<l:SplitPane requiredParentWidth="400" id="default">
+				<l:layoutData>
+					<l:SplitterLayoutData size="{sizes>/pane1}" />
+				</l:layoutData>
+				<Panel height="100%">
+                <core:Icon src="sap-icon://Netweaver-business-client" size="50px" color="Brown" class="sapUiSmallMarginEnd"></core:Icon>
+                <Title text="ASPNo1 Coffee에 오신것을 환영합니다!" titleStyle="H2" ></Title>
+                    <Tree
+                        id="Tree"
+                        items="{path: 'menuModel>/'}"
+                        itemPress=""
+                        >
+                        <headerToolbar>
+                            <OverflowToolbar>
+                                <Title
+                                    text="메뉴" titleStyle="H3" />
+                                <ToolbarSpacer />
+                                <ToggleButton
+                                    icon="sap-icon://menu"
+                                    tooltip="Enable / Disable Custom Context Menu"
+                                    press="onToggleContextMenu" />
+                            </OverflowToolbar>
+                        </headerToolbar>
+                        <CustomTreeItem>
+                            <FlexBox alignItems="Center" width="100%" justifyContent="SpaceBetween" height="50px">
+                                <items>
+                                    <Text text="{menuModel>MenuName}" width="12rem"/>
+                                    <ObjectNumber number="{menuModel>MenuPrice}" state="Information" textAlign="End" unit="KRW" visible="{= ${menuModel>state}? false : true }"/>
+                                    <Button icon="sap-icon://add" press="handleMenuPress" class="sapUiSmallMarginEnd" enabled="{= ${menuModel>state}? false : true }" visible="{= ${menuModel>state}? false : true }" />
+                                </items>
+                            </FlexBox>
+                        </CustomTreeItem>
+                    </Tree>
+				</Panel>
+			</l:SplitPane>
+			<l:PaneContainer orientation="Vertical" resize=".onInnerContainerResize">
+                <l:SplitPane>
+					<l:layoutData>
+						<l:SplitterLayoutData size="{sizes>/pane3}"/>
+					</l:layoutData>
+                    <Panel height="100%">
+                        <Page title="선택한 메뉴" titleLevel="H3">
+                            <Table id="cutomerTable" inset="false" items="{path:'inventoryModel>/'}">
+                                <columns>
+                                        <Column minScreenWidth="Tablet" hAlign="Center" demandPopin="true" popinDisplay="Inline">
+                                            <Label text="메뉴명" design="Bold" />
+                                        </Column>
+                                        <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="false" popinDisplay="Inline">
+                                            <Label text="가격" design="Bold" />
+                                        </Column>
+                                        <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+                                            <Label text="개수" design="Bold" />
+                                        </Column>
+                                    </columns>
+                                <items>
+                                    <ColumnListItem>
+                                        <cells>
+                                            <Text text="{inventoryModel>MaterialName}" />
+                                            <ObjectNumber number="{inventoryModel>MaterialQuantity}" state="None" unit="KRW"/>
+                                            <ObjectNumber number="{inventoryModel>baseQuantity}" state="Information" unit="EA"/>
+                                            <StepInput />
+                                        </cells>
+                                    </ColumnListItem>
+                                </items>
+                            </Table>
+                            <footer>
+                                <OverflowToolbar id="otb3">
+                                    <Label text="총 금액 :" class="sapUiSmallMarginEnd"/>
+                                    <ObjectNumber number="10000" class="sapMObjectNumberLarge" state="Success" textAlign="End" unit="KRW"/>
+                                    <ToolbarSpacer />
+                                    <Button text="구매하기" type="Emphasized" />
+                                    <Button text="초기화" type="Transparent" />
+                                </OverflowToolbar>
+                            </footer>
+                        </Page>
+                    </Panel>
+				</l:SplitPane>
+				<l:SplitPane >
+                    <l:layoutData>
+						<l:SplitterLayoutData size="300px" />
+					</l:layoutData>
+                    <Panel height="100%">
+                        <Page title="주문 내역">
+                            <Text text="" />
+                        </Page>
+                    </Panel>
+				</l:SplitPane>
+			</l:PaneContainer>
+		</l:PaneContainer>
+	</l:ResponsiveSplitter>
+</mvc:View>

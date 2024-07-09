@@ -200,6 +200,10 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
             }
         },
 
+        goToOrder: function() {
+            this.navTo('Order', {});
+        },
+
         /////////////////// DASGBOARD ///////////////////
 
 		onRevealGrid: function () {

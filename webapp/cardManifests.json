@@ -259,7 +259,7 @@
 						"valueColor": "Good"
 					}
 				},
-				"title": "메뉴별 판매량",
+				"title": "메뉴별 판매 수익",
 				"mainIndicator": {
 					"number": "{n}",
 					"unit": "{u}",

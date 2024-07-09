@@ -170,6 +170,13 @@
           "target": [
             "Main"
           ]
+        },
+        {
+          "name": "Order",
+          "pattern": "Order:?query:",
+          "target": [
+            "Order"
+          ]
         }
       ],
       "targets": {
@@ -179,6 +186,13 @@
           "clearControlAggregation": false,
           "viewId": "Main",
           "viewName": "Main"
+        },
+        "Order": {
+          "viewType": "XML",
+          "transition": "slide",
+          "clearControlAggregation": false,
+          "viewId": "Order",
+          "viewName": "Order"
         }
       }
     },

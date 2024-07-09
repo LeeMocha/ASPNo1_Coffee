@@ -16,6 +16,11 @@ height="100%">
 					<f:heading>
 						<Title text="ASPNo.1 Coffee" class="sapUiSmallMarginBottom"/>
 					</f:heading>
+					<f:breadcrumbs >
+						<Breadcrumbs separatorStyle="GreaterThan">
+							<Link text="주문하러 Go!" press="goToOrder"/>
+						</Breadcrumbs>
+					</f:breadcrumbs>
 					<f:expandedContent>					
 						<HeaderContainer id="headerContainer" showOverflowItem="true" showDividers="true">
 							<layout:HorizontalLayout >

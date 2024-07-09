@@ -8,7 +8,7 @@ xmlns:f="sap.ui.layout.form"
 height="100%">
     <Panel class="sapUiMediumMarginBottom">
         <OverflowToolbar style="Clear">
-            <core:Icon src="sap-icon://receipt" alt="Chains" size="1.25rem" class="sapUiSmallMarginEnd"/>
+            <core:Icon src="sap-icon://money-bills" alt="Chains" size="1.25rem" class="sapUiSmallMarginEnd"/>
             <Title text="지출 입력" titleStyle="H3"></Title>
             <ToolbarSpacer></ToolbarSpacer>
         </OverflowToolbar>
