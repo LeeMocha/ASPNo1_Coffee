@@ -8,8 +8,12 @@ sap.ui.define([
     "sap/ui/model/Filter",
     'sap/ui/core/Fragment',
     "sap/m/MessageBox",
+    "sap/m/Dialog",
+    "sap/m/Button",
+    "sap/m/List",
+    "sap/m/StandardListItem"
 ],
-function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary, Filter, Fragment, MessageBox) {
+function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary, Filter, Fragment, MessageBox, Dialog, Button, List, StandardListItem) {
     "use strict";
 
 	var DropLayout = coreLibrary.dnd.DropLayout;
@@ -224,34 +228,41 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
 
         /////////////////// ORDERLIST ///////////////////
 
-        onPressOpenPopover: function(oEvent) {
-            var oView = this.getView();
+        onDraggableDialogPress: function (oEvent) {
             var oSourceControl = oEvent.getSource();
             var selectedOrder = oSourceControl.getBindingContext('orderModel').getObject();
-        
             this.getOrderItemData(selectedOrder.Uuid)
                 .then(function() {
-                    if (!this._pPopover) {
-                        this._pPopover = Fragment.load({
-                            id: oView.getId(),
-                            name: "aspno1coffee.view.Fragments.orderDetail"
-                        }).then(function(oPopover) {
-                            oView.addDependent(oPopover);
-                            return oPopover;
-                        });
-                    }
-        
-                    this._pPopover.then(function(oPopover) {
-                        // Popover에 모델 설정
-                        console.log(oView.getModel('orderItemModel').getData());
-                        oPopover.setModel(oView.getModel('orderItemModel'), 'orderItemModel');
-                        oPopover.openBy(oSourceControl);
+                    this.oDraggableDialog = new Dialog({
+                        title: '주문번호 : ' + selectedOrder.OrderCode,
+                        contentWidth: "300px",
+                        contentHeight: "400px",
+                        draggable: true,
+                        content: new List({
+                            items: {
+                                path: "orderItemModel>/",
+                                template: new StandardListItem({
+                                    title: "{orderItemModel>MenuName}",
+                                    description : "{= ${orderItemModel>MenuCnt} + 'EA' }",
+                                    counter: "{= ${orderItemModel>MenuPrice}*1 }"
+                                })
+                            }
+                        }),
+                        endButton: new Button({
+                            text: "닫기",
+                            press: function () {
+                                this.oDraggableDialog.close();
+                            }.bind(this)
+                        })
                     });
-                }.bind(this))
-                .catch(function() {
-                    console.error("Failed to load order item data");
-                });
-        },
+                //to get access to the controller's model
+                this.getView().addDependent(this.oDraggableDialog);
+                this.oDraggableDialog.open();
+            }.bind(this))
+            .catch(function() {
+                console.error("Failed to load order item data");
+            });
+		},
 
         handleChange: function(oEvent) {
             var sSelectedDate = oEvent.getParameter("value"); // DatePicker에서 선택된 날짜 값 (yyyyMMdd 형식)
@@ -289,8 +300,64 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
 
         /////////////////// INVENTORY ///////////////////
 
+        openDialog: function(oEvent) {
+            var oSourceControl = oEvent.getSource();
+            var selectedInven = oSourceControl.getBindingContext('inventoryModel').getObject();
+            var buttonId = oSourceControl.getId();
+            this.flag = true;
 
+            if(buttonId.includes("discard")){
+                this.flag = false;
+            } 
+            console.log(this.flag);
+            this.setModel(new JSONModel({
+                Uuid: selectedInven.Uuid,
+                MaterialUuid : selectedInven.MaterialUuid,
+                MaterialName : selectedInven.MaterialName,
+                InventoryQuantity : selectedInven.InventoryQuantity, 
+                quantity: 0,
+                Qunit: selectedInven.Qunit,
+                state: this.flag}), 'deleteInvenModel')
+            // create dialog lazily
+            if (!this.oSIDialog) {
+                this.oSIDialog = this.loadFragment({
+                    name: "aspno1coffee.view.Fragments.InvenDialog"
+                });
+            }
+            this.oSIDialog.then(function (oDialog) {
+                this.oDialog = oDialog;
+                this.getView().addDependent(this.oDialog);
+                this.oDialog.open();
+            }.bind(this));
+        },
 
+        _closeDialog: function () {
+			this.oDialog.close();
+		},
+
+        invenMethod: function() {
+            var oMainModel = this.getOwnerComponent().getModel();
+            var updateInven = this.getModel('deleteInvenModel').getData();
+            var newQuantity = updateInven.InventoryQuantity;
+
+            if(this.flag){
+                newQuantity += updateInven.quantity
+            } else {
+                newQuantity -= updateInven.quantity
+                
+                if(newQuantity < 0) newQuantity = 0;
+            }
+            updateInven.InventoryQuantity = newQuantity
+            console.log(newQuantity);
+            
+            this._getODataUpdate(oMainModel, "/Inventory(guid'"+ updateInven.Uuid +"')", updateInven).done(function(aGetData){
+
+            }.bind(this)).fail(function(){
+                MessageBox.information("Read Fail");
+            }).always(function(){
+
+            });
+        },
 
         //////////////////// PAYMENT ////////////////////
 
@@ -299,13 +366,13 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
             var paymentInput = this.getModel('paymentInputModel').getData();
             var oMainModel = this.getOwnerComponent().getModel('Payment');
             this._getODataCreate(oMainModel, "/Payment", paymentInput).done(function(aGetData){
-                
+                MessageBox.alert('정상적으로 주문되었습니다.');
+                this.refresh();
+                this._closeDialog();
             }.bind(this)).fail(function(){
                 MessageBox.information("Read Fail");
             }).always(function(){
-                that.getPaymentData();
-                that.setProperty('paymentInputModel', 'PaymentDescription', '');
-                that.setProperty('paymentInputModel', 'PaymentAmount', '');
+
             });
         },
 

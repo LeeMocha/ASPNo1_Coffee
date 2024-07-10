@@ -82,10 +82,10 @@ height="100%">
                     </t:template>
                 </t:Column>
                 <t:Column sortProperty="OrderItems" showSortMenuEntry="true" hAlign="Center">
-                    <Label text="상세 메뉴" design="Bold"/>
-                    <t:template>
-                        <GenericTag text="총" status="Information" press="onPressOpenPopover" design="StatusIconHidden">
-                        <ObjectNumber number="{orderModel>TotalMenu}" emptyIndicatorMode="Off"  unit="개"></ObjectNumber>
+                <Label text="상세 메뉴" design="Bold"/>
+                <t:template>
+                    <GenericTag text="총" status="Information" press="onDraggableDialogPress" design="StatusIconHidden">
+                        <ObjectNumber number="{orderModel>TotalMenu}" emptyIndicatorMode="Off"  unit="개" />
                     </GenericTag>
                 </t:template>
             </t:Column>

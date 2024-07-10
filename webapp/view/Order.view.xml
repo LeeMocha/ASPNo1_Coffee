@@ -3,6 +3,7 @@ displayBlock="true"
 xmlns:mvc="sap.ui.core.mvc"
 xmlns="sap.m"
 xmlns:l="sap.ui.layout"
+xmlns:form="sap.ui.layout.form"
 xmlns:f="sap.f"
 xmlns:core="sap.ui.core"
 height="100%">
@@ -13,22 +14,17 @@ height="100%">
 					<l:SplitterLayoutData size="{sizes>/pane1}" />
 				</l:layoutData>
 				<Panel height="100%">
-                <core:Icon src="sap-icon://Netweaver-business-client" size="50px" color="Brown" class="sapUiSmallMarginEnd"></core:Icon>
+                <core:Icon src="sap-icon://Netweaver-business-client" size="40px" class="sapUiSmallMarginEnd"></core:Icon>
                 <Title text="ASPNo1 Coffee에 오신것을 환영합니다!" titleStyle="H2" ></Title>
                     <Tree
                         id="Tree"
                         items="{path: 'menuModel>/'}"
-                        itemPress=""
                         >
                         <headerToolbar>
                             <OverflowToolbar>
                                 <Title
                                     text="메뉴" titleStyle="H3" />
                                 <ToolbarSpacer />
-                                <ToggleButton
-                                    icon="sap-icon://menu"
-                                    tooltip="Enable / Disable Custom Context Menu"
-                                    press="onToggleContextMenu" />
                             </OverflowToolbar>
                         </headerToolbar>
                         <CustomTreeItem>
@@ -36,7 +32,7 @@ height="100%">
                                 <items>
                                     <Text text="{menuModel>MenuName}" width="12rem"/>
                                     <ObjectNumber number="{menuModel>MenuPrice}" state="Information" textAlign="End" unit="KRW" visible="{= ${menuModel>state}? false : true }"/>
-                                    <Button icon="sap-icon://add" press="handleMenuPress" class="sapUiSmallMarginEnd" enabled="{= ${menuModel>state}? false : true }" visible="{= ${menuModel>state}? false : true }" />
+                                    <Button icon="sap-icon://add" press="moveToCart" class="sapUiSmallMarginEnd" enabled="{= ${menuModel>state}? false : true }" visible="{= ${menuModel>state}? false : true }" />
                                 </items>
                             </FlexBox>
                         </CustomTreeItem>
@@ -50,7 +46,7 @@ height="100%">
 					</l:layoutData>
                     <Panel height="100%">
                         <Page title="선택한 메뉴" titleLevel="H3">
-                            <Table id="cutomerTable" inset="false" items="{path:'inventoryModel>/'}">
+                            <Table id="cutomerTable" inset="false" items="{path:'cartModel>/'}" noDataText="메뉴를 선택해 주십시오.">
                                 <columns>
                                         <Column minScreenWidth="Tablet" hAlign="Center" demandPopin="true" popinDisplay="Inline">
                                             <Label text="메뉴명" design="Bold" />
@@ -61,14 +57,17 @@ height="100%">
                                         <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
                                             <Label text="개수" design="Bold" />
                                         </Column>
+                                        <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="true" popinDisplay="Inline">
+                                            <Label text="취소" design="Bold" />
+                                        </Column>
                                     </columns>
                                 <items>
                                     <ColumnListItem>
                                         <cells>
-                                            <Text text="{inventoryModel>MaterialName}" />
-                                            <ObjectNumber number="{inventoryModel>MaterialQuantity}" state="None" unit="KRW"/>
-                                            <ObjectNumber number="{inventoryModel>baseQuantity}" state="Information" unit="EA"/>
-                                            <StepInput />
+                                            <Text text="{cartModel>MenuName}" />
+                                            <ObjectNumber number="{cartModel>MenuPrice}" state="None" unit="KRW"/>
+                                            <StepInput value="{cartModel>MenuCnt}" description="EA" min="1" step="1" change="_updateTotalAmount"/>
+                                            <Button icon="sap-icon://less" press="deleteCart"/>
                                         </cells>
                                     </ColumnListItem>
                                 </items>
@@ -76,10 +75,10 @@ height="100%">
                             <footer>
                                 <OverflowToolbar id="otb3">
                                     <Label text="총 금액 :" class="sapUiSmallMarginEnd"/>
-                                    <ObjectNumber number="10000" class="sapMObjectNumberLarge" state="Success" textAlign="End" unit="KRW"/>
+                                    <ObjectNumber number="{totalAmountModel>/totalAmount}" class="sapMObjectNumberLarge" state="Success" textAlign="End" unit="KRW"/>
                                     <ToolbarSpacer />
-                                    <Button text="구매하기" type="Emphasized" />
-                                    <Button text="초기화" type="Transparent" />
+                                    <Button text="구매하기" press="deepCreateOrder" type="Emphasized" />
+                                    <Button text="초기화" press="resetCart" type="Transparent" />
                                 </OverflowToolbar>
                             </footer>
                         </Page>
@@ -87,12 +86,49 @@ height="100%">
 				</l:SplitPane>
 				<l:SplitPane >
                     <l:layoutData>
-						<l:SplitterLayoutData size="300px" />
+						<l:SplitterLayoutData size="14rem" />
 					</l:layoutData>
                     <Panel height="100%">
-                        <Page title="주문 내역">
-                            <Text text="" />
-                        </Page>
+                        <VBox>
+                            <form:SimpleForm id="SimpleFormChange480_12120Dual"
+                                    visible="{orderDetailModel>/state}"
+                                    editable="true"
+                                    layout="ResponsiveGridLayout"
+                                    labelSpanXL="4"
+                                    labelSpanL="4"
+                                    labelSpanM="12"
+                                    labelSpanS="12"
+                                    adjustLabelSpan="false"
+                                    emptySpanXL="0"
+                                    emptySpanL="0"
+                                    emptySpanM="0"
+                                    emptySpanS="0"
+                                    columnsXL="2"
+                                    columnsL="2"
+                                    columnsM="2"
+                                    singleContainerFullSize="false" >
+                                    <form:content>
+                                        <core:Title text="주문 내역" />
+                                        <Label text="주문번호" />
+                                        <Text text="{orderDetailModel>/OrderCode}"/>
+                                        <Label text="주문날짜" />
+                                        <Text text="{
+                                            path: 'orderDetailModel>/OrderDate',
+                                            type: 'sap.ui.model.type.DateTime',
+                                            formatOptions: {
+                                                style: 'medium'
+                                            }
+                                        }" />
+                                        <core:Title text="상세 메뉴" />
+                                        <Label text="메뉴 보기" />
+                                        <GenericTag text="총" status="Information" press="onPressOpenPopover" design="StatusIconHidden">
+                                            <ObjectNumber number="{orderDetailModel>/totalMenu}" emptyIndicatorMode="Off"  unit="개" />
+                                        </GenericTag>
+                                        <Label text="총 금액" />
+                                        <ObjectNumber number="{orderDetailModel>/totalAmount}" class="sapMObjectNumberLarge" state="Success" unit="KRW"/>
+                                    </form:content>
+                                </form:SimpleForm>
+                            </VBox>
                     </Panel>
 				</l:SplitPane>
 			</l:PaneContainer>

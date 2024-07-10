@@ -49,8 +49,8 @@ height="100%">
                         <ObjectNumber number="{inventoryModel>InventoryQuantity}" state="{inventoryModel>inventoryState}" unit="{inventoryModel>Qunit}"/>
                         <Text text="{= ${inventoryModel>Ppq} + '    ' + ${inventoryModel>Unit}}"  renderWhitespace="true"/>
                         <Text text="{= ${inventoryModel>usingRate} + '%'}" />
-                        <Button icon="sap-icon://delete"/>
-                        <Button icon="sap-icon://add-product"/>
+                        <Button icon="sap-icon://delete" press="openDialog" id="discard"/>
+                        <Button icon="sap-icon://add-product" press="openDialog" id="add"/>
                     </cells>
                 </ColumnListItem>
             </items>

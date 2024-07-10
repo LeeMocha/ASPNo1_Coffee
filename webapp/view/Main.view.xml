@@ -14,7 +14,10 @@ height="100%">
 			<f:title>
 				<f:DynamicPageTitle>
 					<f:heading>
-						<Title text="ASPNo.1 Coffee" class="sapUiSmallMarginBottom"/>
+						<HBox>
+							<core:Icon src="sap-icon://sys-monitor" size="30px" class="sapUiSmallMarginEnd"/>
+							<Title text="ASPNo.1 Coffee" class="sapUiSmallMarginBottom"/>
+						</HBox>
 					</f:heading>
 					<f:breadcrumbs >
 						<Breadcrumbs separatorStyle="GreaterThan">
