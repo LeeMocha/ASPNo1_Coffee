@@ -78,6 +78,7 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
             this.getInventoryData();
             this.getOrderData();
             this.getPaymentData();
+            this.getMaterialData();
         },
 
         setSubModel: function() {
@@ -188,7 +189,7 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
             });
         },
 
-        refresh: function() {
+        refresh: function(check) {
             switch (this._selectedTabKey) {
                 case '주문현황' : 
                     this.getOrderData();
@@ -196,6 +197,7 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
                     break;
                 case '재고현황' :
                     this.getInventoryData();
+                    check ? this.getPaymentData() : '';
                     break;
                 case '지출현황' :
                     this.getPaymentData();
@@ -315,8 +317,10 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
                 MaterialUuid : selectedInven.MaterialUuid,
                 MaterialName : selectedInven.MaterialName,
                 InventoryQuantity : selectedInven.InventoryQuantity, 
-                quantity: 0,
+                MaterialQuantity : selectedInven.MaterialQuantity,
+                quantity: this.flag?selectedInven.MaterialQuantity:0,
                 Qunit: selectedInven.Qunit,
+                MaterialCnt : 1,
                 state: this.flag}), 'deleteInvenModel')
             // create dialog lazily
             if (!this.oSIDialog) {
@@ -336,45 +340,86 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
 		},
 
         invenMethod: function() {
+            var that = this;
             var oMainModel = this.getOwnerComponent().getModel();
             var updateInven = this.getModel('deleteInvenModel').getData();
-            var newQuantity = updateInven.InventoryQuantity;
+            var currentQuantity = parseInt(updateInven.InventoryQuantity, 10);
+            var quantityChange = parseInt(updateInven.quantity, 10);
+        
+            var newQuantity = 0
+            if(this.flag) {
+                var materialModelData = this.getModel('materialModel').getData();
+                // MaterialUuid에 해당하는 데이터를 찾기
+                var material = materialModelData.find(function(item) {
+                    return item.Uuid === updateInven.MaterialUuid;
+                });
 
-            if(this.flag){
-                newQuantity += updateInven.quantity
-            } else {
-                newQuantity -= updateInven.quantity
-                
-                if(newQuantity < 0) newQuantity = 0;
-            }
-            updateInven.InventoryQuantity = newQuantity
-            console.log(newQuantity);
+                if (!material) {
+                    MessageBox.error("Material not found.");
+                    return;
+                }
             
-            this._getODataUpdate(oMainModel, "/Inventory(guid'"+ updateInven.Uuid +"')", updateInven).done(function(aGetData){
+                var price = material.Price;  // material에서 price 가져오기
+                var PaymentAmount = updateInven.MaterialCnt * price;
+                var PaymentDescription = '재료 구입(' + updateInven.MaterialName + ') ' + updateInven.MaterialQuantity + updateInven.Qunit + ' * ' + updateInven.MaterialCnt + 'EA';
+                newQuantity = currentQuantity + quantityChange*updateInven.MaterialCnt;
 
-            }.bind(this)).fail(function(){
-                MessageBox.information("Read Fail");
-            }).always(function(){
+            } else {
+                console.log(quantityChange);
+                newQuantity = currentQuantity - quantityChange
+                if (newQuantity < 0) newQuantity = 0;
+            }
 
+            updateInven.InventoryQuantity = '' + newQuantity;
+            delete updateInven.state;
+            delete updateInven.quantity;
+            delete updateInven.MaterialName;
+            delete updateInven.MaterialQuantity;
+            delete updateInven.MaterialCnt;
+        
+            this._getODataUpdate(oMainModel, "/Inventory(guid'" + updateInven.Uuid + "')", updateInven).done(function(aGetData) {
+                if (that.flag) {
+                    // 지출내역에 정보 저장
+                    that.insertPayment({
+                        PaymentDescription: PaymentDescription,
+                        PaymentAmount: ''+PaymentAmount
+                    });
+                    that.refresh(true);
+                } else {
+                    that._closeDialog();
+                    that.refresh();
+                }
+            }.bind(this)).fail(function() {
+                MessageBox.information("Update Fail");
+            }).always(function() {
             });
         },
-
+        
         //////////////////// PAYMENT ////////////////////
-
-        insertPayment: function() {
-            var that = this
-            var paymentInput = this.getModel('paymentInputModel').getData();
+        
+        insertPayment: function(Material) {
             var oMainModel = this.getOwnerComponent().getModel('Payment');
-            this._getODataCreate(oMainModel, "/Payment", paymentInput).done(function(aGetData){
+            var that = this;
+            var paymentInput = {};
+            if (Material) {
+                paymentInput = Material;
+            } else {
+                paymentInput = this.getModel('paymentInputModel').getData();
+                if(paymentInput.PaymentDescription.length <= 0 || paymentInput.PaymentAmount <= 0) {
+                    MessageBox.alert('지출 상세 내역을 모두 입력 바랍니다.');
+                    return; 
+                }
+            }
+            this._getODataCreate(oMainModel, "/Payment", paymentInput).done(function(aGetData) {
                 MessageBox.alert('정상적으로 주문되었습니다.');
                 this.refresh();
                 this._closeDialog();
-            }.bind(this)).fail(function(){
+            }.bind(this)).fail(function() {
                 MessageBox.information("Read Fail");
-            }).always(function(){
-
+            }).always(function() {
             });
         },
+        
 
     });
 });

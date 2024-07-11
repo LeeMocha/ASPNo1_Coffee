@@ -60,6 +60,15 @@
           "localUri": "localService/metadata.xml",
           "odataVersion": "2.0"
         }
+      },
+      "categoryService": {
+        "uri": "/sap/opu/odata/sap/YUI_CATEGORY_JH/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/metadata.xml",
+          "odataVersion": "2.0"
+        }
       }
     },
     "crossNavigation": {
@@ -142,6 +151,11 @@
       },
       "Payment": {
         "dataSource": "paymentService",
+        "preload": true,
+        "settings": {}
+      },
+      "Category": {
+        "dataSource": "categoryService",
         "preload": true,
         "settings": {}
       }

@@ -4,8 +4,13 @@ sap.ui.define([
     'sap/m/Menu', 
     'sap/m/MenuItem',
     "sap/m/MessageBox",
+    "sap/ui/model/Filter",
+    "sap/m/Dialog",
+    "sap/m/Button",
+    "sap/m/List",
+    "sap/m/StandardListItem"
 ],
-function(Controller, JSONModel, Menu, MenuItem, MessageBox) {
+function(Controller, JSONModel, Menu, MenuItem, MessageBox, Filter, Dialog, Button, List, StandardListItem) {
 	"use strict";
 
     return Controller.extend("aspno1coffee.controller.Order", {
@@ -31,7 +36,7 @@ function(Controller, JSONModel, Menu, MenuItem, MessageBox) {
 		},
 
         setOriginModel: function() {
-            this.getMenuData();
+            this.getCategoryData();
         },
 
         setSubModel: function() {
@@ -40,33 +45,40 @@ function(Controller, JSONModel, Menu, MenuItem, MessageBox) {
             this.setModel(new JSONModel({state: false}), 'orderDetailModel');
         },
 
+        getCategoryData: function() {
+            var oMainModel = this.getOwnerComponent().getModel('Category');
+            this._getODataRead(oMainModel, "/Category").done(function(aGetData){
+                console.log(aGetData);
+                this.categorys = aGetData;
+                this.getMenuData();
+            }.bind(this)).fail(function(){
+                MessageBox.information("Read Fail");
+            }).always(function(){
+            });
+        },
+
         getMenuData: function(){
             var oMainModel = this.getOwnerComponent().getModel('Menu');
+            var categorys = this.categorys;
             this._getODataRead(oMainModel, "/Menu").done(function(aGetData){
-
-                var treeModel =[
-                    {
-                        "MenuName": "커피",
+            var treeModel = []
+                categorys.map((category, index) => {
+                    treeModel.push({
+                        "MenuName": category.Category,
                         "state": true,
                         "nodes": []
-                    },
-                    {
-                        "MenuName": "논커피",
-                        "state": true,
-                        "nodes": []
-                    }
-                ]
+                    });
 
-                treeModel.map(node => {
-                    if(node.text = '커피'){
-                        aGetData.map( menu => {
-                            menu?node.nodes.push({MenuUuid: menu.Uuid, MenuName:menu.MenuName, MenuPrice:menu.MenuPrice}):""
-                        })
-                    } else {
-                        aGetData.map( menu => {
-                            menu?node.nodes.push({MenuUuid: menu.Uuid, MenuName:menu.MenuName, MenuPrice:menu.MenuPrice}):""
-                        })
-                    }
+                    aGetData.map( menu => {
+                        menu.CategoryUuid === category.Uuid ? treeModel[index].nodes.push({
+                            MenuUuid: menu.Uuid, 
+                            MenuName:menu.MenuName, 
+                            MenuPrice:menu.MenuPrice,
+                            state: menu.MenuState==='X'?true:false,
+                            MenuState:menu.MenuState
+                        }):""
+                    })
+
                 })
 
                 console.log(treeModel)
@@ -182,7 +194,60 @@ function(Controller, JSONModel, Menu, MenuItem, MessageBox) {
 
 
 
-        }
+        },
+
+        getOrderItemData: function(OrderUuid) {
+            return new Promise((resolve, reject) => {
+                var oMainModel = this.getOwnerComponent().getModel('Order');
+                var aFilter = [new Filter("Uuid", "EQ", OrderUuid)];
+        
+                this._getODataRead(oMainModel, "/Ordered", aFilter, '$expand=to_OrderItem')
+                    .done(function(aGetData) {
+                        var oOrderItemModel = new JSONModel(aGetData[0].to_OrderItem.results);
+                        this.getView().setModel(oOrderItemModel, 'orderItemModel');
+                        resolve();
+                    }.bind(this))
+                    .fail(function() {
+                        MessageBox.information("Read Fail");
+                        reject();
+                    });
+            });
+        },
+
+        onDraggableDialogPress: function (oEvent) {
+            var selectedOrder = this.getModel('orderDetailModel').getData();
+            this.getOrderItemData(selectedOrder.Uuid)
+                .then(function() {
+                    this.oDraggableDialog = new Dialog({
+                        title: '주문번호 : ' + selectedOrder.OrderCode,
+                        contentWidth: "300px",
+                        contentHeight: "400px",
+                        draggable: true,
+                        content: new List({
+                            items: {
+                                path: "orderItemModel>/",
+                                template: new StandardListItem({
+                                    title: "{orderItemModel>MenuName}",
+                                    description : "{= ${orderItemModel>MenuCnt} + 'EA' }",
+                                    counter: "{= ${orderItemModel>MenuPrice}*1 }"
+                                })
+                            }
+                        }),
+                        endButton: new Button({
+                            text: "닫기",
+                            press: function () {
+                                this.oDraggableDialog.close();
+                            }.bind(this)
+                        })
+                    });
+                //to get access to the controller's model
+                this.getView().addDependent(this.oDraggableDialog);
+                this.oDraggableDialog.open();
+            }.bind(this))
+            .catch(function() {
+                console.error("Failed to load order item data");
+            });
+		},
 
     });
 })

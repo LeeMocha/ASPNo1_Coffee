@@ -16,8 +16,10 @@
 					<f:content>
 						<core:Title text="재료명" />
                         <Input value="{deleteInvenModel>/MaterialName}" required="true" editable="false" />
-						<core:Title text="{= ${deleteInvenModel>/state} ? '추가 량' : '폐기 량'}" />
-						<Input value="{deleteInvenModel>/quantity}" description="{deleteInvenModel>/Qunit}" type="Number"/>
+						<core:Title text="{= ${deleteInvenModel>/state} ? '기본 단위' : '폐기 량'}" />
+						<Input value="{deleteInvenModel>/quantity}" description="{deleteInvenModel>/Qunit}" type="Number" editable="{= !${deleteInvenModel>/state} }"/>
+						<StepInput value="{deleteInvenModel>/MaterialCnt}" description="EA" min="1" step="1" change="_updateTotalAmount" enabled="{= ${deleteInvenModel>/state} }" visible="{= ${deleteInvenModel>/state} }"/>
+						<Input value="{= ${deleteInvenModel>/quantity} * ${deleteInvenModel>/MaterialCnt} }" description="{deleteInvenModel>/Qunit}" type="Number" editable="{= !${deleteInvenModel>/state} }" visible="{= ${deleteInvenModel>/state} }"/>
 					</f:content>
 				</f:SimpleForm>
 			</VBox>

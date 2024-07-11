@@ -19,6 +19,7 @@ height="100%">
                     <Tree
                         id="Tree"
                         items="{path: 'menuModel>/'}"
+                        noDataText="메뉴를 불러오는 중입니다.."
                         >
                         <headerToolbar>
                             <OverflowToolbar>
@@ -33,6 +34,7 @@ height="100%">
                                     <Text text="{menuModel>MenuName}" width="12rem"/>
                                     <ObjectNumber number="{menuModel>MenuPrice}" state="Information" textAlign="End" unit="KRW" visible="{= ${menuModel>state}? false : true }"/>
                                     <Button icon="sap-icon://add" press="moveToCart" class="sapUiSmallMarginEnd" enabled="{= ${menuModel>state}? false : true }" visible="{= ${menuModel>state}? false : true }" />
+                                    <ObjectStatus text="SOLD OUT" state="Error" visible="{= ${menuModel>MenuState}==='X' ? true : false }" />
                                 </items>
                             </FlexBox>
                         </CustomTreeItem>
@@ -121,7 +123,7 @@ height="100%">
                                         }" />
                                         <core:Title text="상세 메뉴" />
                                         <Label text="메뉴 보기" />
-                                        <GenericTag text="총" status="Information" press="onPressOpenPopover" design="StatusIconHidden">
+                                        <GenericTag text="총" status="Information" press="onDraggableDialogPress" design="StatusIconHidden">
                                             <ObjectNumber number="{orderDetailModel>/totalMenu}" emptyIndicatorMode="Off"  unit="개" />
                                         </GenericTag>
                                         <Label text="총 금액" />
