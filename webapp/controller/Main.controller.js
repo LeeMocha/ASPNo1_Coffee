@@ -11,9 +11,11 @@ sap.ui.define([
     "sap/m/Dialog",
     "sap/m/Button",
     "sap/m/List",
-    "sap/m/StandardListItem"
+    "sap/m/StandardListItem",
+    "sap/m/MessageToast",
 ],
-function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary, Filter, Fragment, MessageBox, Dialog, Button, List, StandardListItem) {
+function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary, Filter, Fragment, 
+    MessageBox, Dialog, Button, List, StandardListItem, MessageToast) {
     "use strict";
 
 	var DropLayout = coreLibrary.dnd.DropLayout;
@@ -24,6 +26,7 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
             this.getRouter().getRoute("Main").attachMatched(this._onRouteMatched, this);
 			var oCardManifests = new JSONModel(sap.ui.require.toUrl("aspno1coffee/cardManifests.json"));
 			this.getView().setModel(oCardManifests, "manifests");
+            console.log(this.getModel('manifests'));
             
 			var oGrid = this.byId("grid1");
             oGrid.addDragDropConfig(new DragInfo({
@@ -75,16 +78,18 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
         },
 
         setOriginModel: function() {
+            this.getCategoryData();
             this.getInventoryData();
             this.getOrderData();
             this.getPaymentData();
-            this.getMaterialData();
+            this.getMenuSalesData();
         },
 
         setSubModel: function() {
             this.setModel(new JSONModel({dateVar: '', startTimeVar: '', endTimeVar: '',}), 'searchModel');
             this.setModel(new JSONModel({dateVar: '', startTimeVar: '', endTimeVar: '',}), 'searchModel2');
-            this.setModel(new JSONModel({PaymentDescription : '', PaymentAmount : 0}), 'paymentInputModel');
+            this.setModel(new JSONModel({PaymentDescription : undefined, PaymentAmount : undefined}), 'paymentInputModel');
+            this.setModel(new JSONModel([]), 'temporaryModel');
             this._selectedTabKey = "데시보드";
         },
 
@@ -97,6 +102,7 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
             var oMainModel = this.getOwnerComponent().getModel();
             this._getODataRead(oMainModel, "/Inventory").done(function(aGetData){
                 this.setModel(new JSONModel(aGetData), 'inventoryModel');
+                this.getMaterialData();
             }.bind(this)).fail(function(){
                 MessageBox.information("Read Fail");
             }).always(function(){
@@ -165,8 +171,23 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
 
         getMaterialData: function() {
             var oMainModel = this.getOwnerComponent().getModel('Material');
+            var oInventoryModel = this.getModel('inventoryModel');
+
             this._getODataRead(oMainModel, "/Material").done(function(aGetData){
                 this.setModel(new JSONModel(aGetData), 'materialModel');
+
+                // Inventory 모델의 데이터를 가져오기
+                var aInventoryData = oInventoryModel.getData();
+
+                // Inventory 모델의 MaterialUuid를 제외한 재료만 필터링
+                var aFilteredData = aGetData.filter(function(material) {
+                    return !aInventoryData.some(function(inventoryItem) {
+                        return inventoryItem.MaterialUuid === material.Uuid;
+                    });
+                });
+
+                this.setModel(new JSONModel(aFilteredData), 'productModel');
+
             }.bind(this)).fail(function(){
                 MessageBox.information("Read Fail");
             }).always(function(){
@@ -174,9 +195,160 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
             });
         },
 
-        getMenuData: function() {
-
+        getMenuSalesData: function() {
+            var oMainModel = this.getOwnerComponent().getModel('MenuSales');
+            this._getODataRead(oMainModel, "/MenuSales").done(function(aGetData){
+                var aData = aGetData.map(function(item) {
+                    return {
+                        MenuName: item.MenuName,
+                        Sales: item.Sales
+                    };
+                });
+        
+                var oMenuSalesModel = new JSONModel({
+                    data: aData
+                });
+        
+                this.getView().setModel(oMenuSalesModel, "menuSalesModel");
+        
+                var oVizFrame = this.getView().byId("stackedFrame");
+                oVizFrame.setModel(oMenuSalesModel, "menuSalesModel");
+                oVizFrame.setVizType("stacked_column");
+        
+                var vizProperties = {
+                    title: {
+                        text: "메뉴별 판매량",
+                        visible: true
+                    },
+                    legend: {
+                        title: {
+                            visible: false
+                        }
+                    },
+                    plotArea: {
+                        dataLabel: {
+                            visible: true
+                        }
+                    },
+                    categoryAxis: {
+                        title: {
+                            visible: true,
+                            text: "메뉴명"
+                        }
+                    },
+                    valueAxis: {
+                        title: {
+                            visible: true,
+                            text: "판매량"
+                        }
+                    }
+                };
+        
+                oVizFrame.setVizProperties(vizProperties);
+                var oPopover = new sap.viz.ui5.controls.Popover({});
+                oPopover.connect(oVizFrame.getVizUid());
+        
+            }.bind(this)).fail(function(){
+                MessageBox.information("Read Fail");
+            }).always(function(){
+            });
         },
+
+        getCategoryData: function() {
+            var oMainModel = this.getOwnerComponent().getModel('Category');
+            
+            return new Promise(function(resolve, reject) {
+                this._getODataRead(oMainModel, "/Category")
+                    .done(function(aGetData) {
+        
+                        // 데이터를 변환하여 categoryModel로 설정
+                        var aData = aGetData.map(function(item) {
+                            return {
+                                Category: item.Category,
+                                categoryCnt: item.categoryCnt
+                            };
+                        });
+        
+                        var oCategoryModel = new JSONModel({
+                            data: aData
+                        });
+        
+                        this.getView().setModel(oCategoryModel, "categoryModel");
+        
+                        var oVizFrame = this.getView().byId("donutFrame");
+                        oVizFrame.setModel(oCategoryModel, "categoryModel");
+                        oVizFrame.setVizType("donut");
+                        var vizProperties = {
+                            interaction: {
+                                zoom: {
+                                    enablement: "disabled"
+                                },
+                                selectability: {
+                                    mode: "EXCLUSIVE"
+                                }
+                            },
+                            categoryAxis: {
+                                title: {
+                                    visible: false
+                                },
+                                label: {
+                                    linesOfWrap: 2,
+                                    rotation: "fixed",
+                                    angle: 0,
+                                    style: {
+                                        fontSize: "12px"
+                                    }
+                                },
+                                axisTick: {
+                                    shortTickVisible: false
+                                }
+                            },
+                            title: {
+                                text: "품목별 판매량",
+                                visible: true
+                            },
+                            legend: {
+                                visible: true,
+                                title: {
+                                    visible: true
+                                },
+                                marker: {
+                                    shape: "squar", // 범례 마커 모양 설정
+                                    size: 10 // 범례 마커 크기 설정
+                                }
+                            },
+                            plotArea: {
+                                gridline: {
+                                    visible: false
+                                },
+                                dataLabel: {
+                                    visible: true,
+                                    style: {
+                                        fontWeight: 'bold'
+                                    },
+                                    hideWhenOverlap: false
+                                }
+                            }
+                        };
+        
+                        oVizFrame.setVizProperties(vizProperties);
+                        
+                        var oPopover = new sap.viz.ui5.controls.Popover({});
+                        oPopover.connect(oVizFrame.getVizUid());
+        
+                        resolve(); // 성공적으로 데이터를 모델에 설정하면 resolve 호출
+        
+                    }.bind(this))
+                    .fail(function() {
+                        MessageBox.error("Read Fail");
+                        reject(); // 실패 시 reject 호출
+                    })
+                    .always(function() {
+                        // 항상 실행할 로직이 있으면 여기에 추가
+                    });
+            }.bind(this));
+        },
+    
 
         getPaymentData: function(aFilter = []) {
             var oMainModel = this.getOwnerComponent().getModel('Payment');
@@ -198,6 +370,7 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
                 case '재고현황' :
                     this.getInventoryData();
                     check ? this.getPaymentData() : '';
+                    check ? this.getView().byId('datePicker2').setValue('') : '';
                     break;
                 case '지출현황' :
                     this.getPaymentData();
@@ -380,11 +553,12 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
             this._getODataUpdate(oMainModel, "/Inventory(guid'" + updateInven.Uuid + "')", updateInven).done(function(aGetData) {
                 if (that.flag) {
                     // 지출내역에 정보 저장
-                    that.insertPayment({
+                    that.insertPayment(null, {
                         PaymentDescription: PaymentDescription,
                         PaymentAmount: ''+PaymentAmount
                     });
                     that.refresh(true);
+                    that._closeDialog();
                 } else {
                     that._closeDialog();
                     that.refresh();
@@ -394,10 +568,131 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
             }).always(function() {
             });
         },
+
+        cartReset: function (){
+            this.moveSelectedRow("temporaryModel", "productModel", true);
+        },
+
+        moveToTable1: function() {
+            // Table2에서 선택된 항목을 Table1로 이동
+            this.moveSelectedRow("temporaryModel", "productModel");
+        },
+        
+        moveToTable2: function() {
+            // Table1에서 선택된 항목을 Table2로 이동
+            this.moveSelectedRow("productModel", "temporaryModel");
+        },
+        
+        moveSelectedRow: function(sourceModelName, targetModelName, resetState=false) {
+
+            var oSourceTable = this.byId(sourceModelName === "productModel" ? "table1" : "table2");
+            var oTargetTable = this.byId(targetModelName === "productModel" ? "table1" : "table2");
+            var oSourceModel = this.getView().getModel(sourceModelName);
+            var oTargetModel = this.getView().getModel(targetModelName);
+            var aSourceData = oSourceModel.getData() || [];
+            var aTargetData = oTargetModel.getData() || [];
+            var aNewItems = [];
+            var dataLength;
+
+            var aSelectedIndices = oSourceTable.getSelectedIndices();
+            if (aSelectedIndices.length === 0 && !resetState) {
+                MessageToast.show("먼저 이동할 항목을 선택하세요.");
+                return;
+            }
+
+            var dataLength = resetState ? aSourceData.length : aSelectedIndices.length;
+
+            for (var i = dataLength - 1; i >= 0; i--) {
+                var iIndex = resetState ? i : aSelectedIndices[i];
+                var oSelectedData = aSourceData[iIndex];
+                var bExists = aTargetData.some(function(item) {
+                    return item.Uuid === oSelectedData.Uuid;
+                });
+        
+                if (!bExists) {
+                    aNewItems.unshift(oSelectedData);
+                }
+                aSourceData.splice(iIndex, 1);
+            }
+
+            aNewItems.forEach(function(oNewItem) {
+                aTargetData.push({...oNewItem, totalAmount : oNewItem.Price * 1, MaterialCnt : 1});
+            });
+
+            this.setModel(new JSONModel(aSourceData), sourceModelName);
+            this.setModel(new JSONModel(aTargetData), targetModelName);
+
+            var SortOrder = coreLibrary.SortOrder;
+            var oProductNameColumn2 = this.getView().byId("ProductCode2");
+            var oProductNameColumn3 = this.getView().byId("ProductCode3");
+            this.getView().byId("table1").sort(oProductNameColumn2, SortOrder.Ascending);
+            this.getView().byId("table2").sort(oProductNameColumn3, SortOrder.Ascending);
+
+        },
+
+        _updateTotalAmount: function() {
+            // 카트 모델과 데이터를 가져옴
+            var temporaryData = this.getModel("temporaryModel").getData();
+            
+            // 총 금액을 계산
+            var iTotalAmount = 0;
+            temporaryData.map(item => {
+                iTotalAmount += item.Price * item.MaterialCnt;
+            });
+            
+            // 총 금액 모델에 갱신
+            var oTotalAmountModel = this.getView().getModel("temporaryModel");
+            oTotalAmountModel.setProperty("/totalAmount", iTotalAmount);
+        },
+
+        addInventory: function() {
+            var oMainModel = this.getOwnerComponent().getModel();
+            var temporaryData = this.getView().getModel("temporaryModel").getData();
+
+            if(temporaryData.length <= 0) {
+                MessageToast.show("선택하신 상품이 없습니다.");
+                return;
+            }
+
+            var that = this;
+            MessageBox.confirm("선택한 재료들을 재고로 추가합니다.", {
+                actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
+                emphasizedAction: MessageBox.Action.OK,
+                onClose: function (sAction) {
+                    if(sAction === 'OK'){
+                        temporaryData.map( Material => {
+                            var newStock = {
+                                MaterialUuid : Material.Uuid,
+                                InventoryQuantity : '' + Material.MaterialQuantity*Material.MaterialCnt,
+                                Qunit : Material.Qunit
+                            }
+    
+                            that._getODataCreate(oMainModel, '/Inventory', newStock).done(function(aReturn){
+                                var PaymentDescription = '재료 구입(' + Material.MaterialName + ') ' + Material.MaterialQuantity + Material.Qunit + ' * ' + Material.MaterialCnt + 'EA';
+                                var PaymentAmount = Material.totalAmount;
+                                that.insertPayment(null, {
+                                    PaymentDescription: PaymentDescription,
+                                    PaymentAmount: ''+PaymentAmount
+                                });
+                                that.refresh(true);
+                            }.bind(this)).fail(()=>{
+                                MessageBox.information("Create Fail");
+                            }).always(()=>{
+
+                            })
+                        })
+                    }
+                },
+                dependentOn: this.getView()
+            });
+
+            this.setModel(new JSONModel([]), 'temporaryModel');
+
+        },
         
         //////////////////// PAYMENT ////////////////////
         
-        insertPayment: function(Material) {
+        insertPayment: function(oEvent, Material = undefined) {
             var oMainModel = this.getOwnerComponent().getModel('Payment');
             var that = this;
             var paymentInput = {};
@@ -405,15 +700,16 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
                 paymentInput = Material;
             } else {
                 paymentInput = this.getModel('paymentInputModel').getData();
-                if(paymentInput.PaymentDescription.length <= 0 || paymentInput.PaymentAmount <= 0) {
+                if( !paymentInput.PaymentDescription || !paymentInput.PaymentAmount ) {
+                    console.log(paymentInput);
                     MessageBox.alert('지출 상세 내역을 모두 입력 바랍니다.');
                     return; 
                 }
             }
+            console.log(paymentInput);
             this._getODataCreate(oMainModel, "/Payment", paymentInput).done(function(aGetData) {
-                MessageBox.alert('정상적으로 주문되었습니다.');
+                MessageBox.alert('지출 내역이 입력되었습니다.');
                 this.refresh();
-                this._closeDialog();
             }.bind(this)).fail(function() {
                 MessageBox.information("Read Fail");
             }).always(function() {

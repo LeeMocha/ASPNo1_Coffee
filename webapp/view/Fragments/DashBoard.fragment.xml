@@ -4,9 +4,13 @@ xmlns="sap.m"
 xmlns:mvc="sap.ui.core.mvc"
 xmlns:f="sap.f"
 xmlns:card="sap.f.cards"
+xmlns:c="sap.card"
 xmlns:w="sap.ui.integration.widgets"
 xmlns:chart="sap.suite.ui.microchart"
 xmlns:layout="sap.ui.layout"
+xmlns:viz="sap.viz.ui5.controls"
+xmlns:viz.data="sap.viz.ui5.data"
+xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
 displayBlock="true"
 height="100%">
     <ScrollContainer
@@ -29,21 +33,83 @@ height="100%">
 			<f:layoutXS>
 				<f:GridContainerSettings rowSize="70px" columnSize="70px" gap="8px" />
 			</f:layoutXS>
-			<w:Card manifest="{manifests>/analytical}">
-				<w:layoutData>
-					<f:GridContainerItemLayoutData rows="5" columns="13" />
-				</w:layoutData>
-			</w:Card>
-			<w:Card manifest="{manifests>/donut}">
-				<w:layoutData>
+			<f:Card >
+				<f:header>
+				</f:header>
+				<f:content>
+					<viz:VizFrame id="vizFrame" uiConfig="{applicationSet:'fiori'}" vizType='line' >
+						<viz:dataset>
+							<viz.data:FlattenedDataset data="{categoryModel>/data}" >
+								<viz.data:dimensions>
+									<viz.data:DimensionDefinition name="품목" value="{categoryModel>Category}"/>
+								</viz.data:dimensions>
+								<viz.data:measures>
+									<viz.data:MeasureDefinition name="판매량" value="{categoryModel>categoryCnt}"/>
+								</viz.data:measures>
+							</viz.data:FlattenedDataset>
+						</viz:dataset>
+						<viz:feeds>
+							<viz.feeds:FeedItem uid="size" type="Measure" values="판매량"/>
+							<viz.feeds:FeedItem uid="color" type="Dimension" values="품목"/>
+						</viz:feeds>
+					</viz:VizFrame>
+				</f:content>
+				<f:layoutData>
+					<f:GridContainerItemLayoutData rows="5" columns="10" />
+				</f:layoutData>
+			</f:Card>
+			<f:Card >
+				<f:content>
+					<viz:VizFrame id="donutFrame" uiConfig="{applicationSet:'fiori'}" vizType='donut' >
+						<viz:dataset>
+							<viz.data:FlattenedDataset data="{categoryModel>/data}" >
+								<viz.data:dimensions>
+									<viz.data:DimensionDefinition name="품목" value="{categoryModel>Category}"/>
+								</viz.data:dimensions>
+								<viz.data:measures>
+									<viz.data:MeasureDefinition name="판매량" value="{categoryModel>categoryCnt}"/>
+								</viz.data:measures>
+							</viz.data:FlattenedDataset>
+						</viz:dataset>
+						<viz:feeds>
+							<viz.feeds:FeedItem uid="size" type="Measure" values="판매량"/>
+							<viz.feeds:FeedItem uid="color" type="Dimension" values="품목"/>
+						</viz:feeds>
+					</viz:VizFrame>
+				</f:content>
+				<f:layoutData>
 					<f:GridContainerItemLayoutData rows="5" columns="6" />
-				</w:layoutData>
-			</w:Card>
-			<w:Card manifest="{manifests>/stackedColumn}">
-				<w:layoutData>
-					<f:GridContainerItemLayoutData rows="5" columns="9" />
-				</w:layoutData>
-			</w:Card>
+				</f:layoutData>
+			</f:Card>
+			<f:Card >
+				<f:header>
+				</f:header>
+				<f:content>
+                    <viz:VizFrame id="stackedFrame" uiConfig="{applicationSet:'fiori'}"
+                        width="100%" vizType='stacked_column'>
+                        <viz:dataset>
+                            <viz.data:FlattenedDataset data="{menuSalesModel>/data}">
+                                <viz.data:dimensions>
+                                    <viz.data:DimensionDefinition name="메뉴명" value="{menuSalesModel>MenuName}" />
+                                </viz.data:dimensions>
+                                <viz.data:measures>
+                                    <viz.data:MeasureDefinition name="판매량" value="{menuSalesModel>Sales}" />
+                                </viz.data:measures>
+                            </viz.data:FlattenedDataset>
+                        </viz:dataset>
+                        <viz:feeds>
+                            <viz.feeds:FeedItem uid="valueAxis" type="Measure" values="판매량" />
+                            <viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="메뉴명" />
+                        </viz:feeds>
+                        <viz:dependents>
+                            <viz:Popover id="idPopOver"></viz:Popover>
+                        </viz:dependents>
+                    </viz:VizFrame>
+				</f:content>
+				<f:layoutData>
+					<f:GridContainerItemLayoutData rows="5" columns="16" />
+				</f:layoutData>
+			</f:Card>
 		</f:GridContainer>
 	</ScrollContainer>
 </core:FragmentDefinition>

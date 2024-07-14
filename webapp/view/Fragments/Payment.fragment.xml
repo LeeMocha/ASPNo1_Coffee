@@ -32,6 +32,7 @@ height="100%">
         rows='{paymentModel>/}'
         sort="{paymentModel>/PaymentDate}"
         selectionMode="MultiToggle"
+        class="sapUiMediumMarginBottom"
         >
             <t:extension>
                 <OverflowToolbar style="Clear">

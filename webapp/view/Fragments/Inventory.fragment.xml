@@ -2,6 +2,7 @@
 xmlns:core="sap.ui.core"
 xmlns="sap.m"
 xmlns:mvc="sap.ui.core.mvc"
+xmlns:t="sap.ui.table"
 xmlns:u="sap.ui.unified"
 height="100%">
     <Panel >
@@ -55,5 +56,116 @@ height="100%">
                 </ColumnListItem>
             </items>
         </Table>
+    </Panel>
+    <Panel class="sapUiMediumMarginTop">
+        <OverflowToolbar >
+                    <core:Icon src="sap-icon://shipping-status" alt="Chains" size="1.25rem" class="sapUiSmallMarginEnd"/>
+                    <Title text="재고 추가하기" titleStyle="H3"></Title>
+                    <ToolbarSpacer></ToolbarSpacer>
+        </OverflowToolbar>
+        <HBox renderType="Bare">
+            <t:Table 
+                id="table1"
+                selectionMode="MultiToggle"
+                ariaLabelledBy="title"
+                rows="{
+                    path: 'productModel>/'
+                }">
+                <t:extension>
+                    <OverflowToolbar id="infobar" style="Clear">
+                        <Title id="title" text="가능 품목"/>
+                    </OverflowToolbar>
+                </t:extension>
+                <t:columns>
+                    <t:Column
+                        id="ProductCode2"
+                        sortProperty="MaterialName">
+                        <Text text="재료명"/>
+                        <t:template>
+                            <Text text="{productModel>MaterialName}" wrapping="false" />
+                        </t:template>
+                    </t:Column>
+                    <t:Column width="9rem" >
+                        <Text text="기본단위"/>
+                        <t:template>
+                            <u:Currency stringValue="{productModel>MaterialQuantity}" currency="{productModel>Qunit}"/>
+                        </t:template>
+                    </t:Column>
+                    <t:Column
+                        width="7rem">
+                        <Text text="상품 가격" />
+                        <t:template>
+                            <u:Currency stringValue="{productModel>Price}" currency="{productModel>Unit}"/>
+                        </t:template>
+                    </t:Column>
+                </t:columns>
+            </t:Table>
+            <VBox justifyContent="Center" class="sapUiTinyMarginBeginEnd">
+                <Button
+                    class="sapUiTinyMarginBottom"
+                    icon="sap-icon://navigation-right-arrow"
+                    tooltip="선택목록으로 넣기"
+                    press=".moveToTable2"/>
+                <Button
+                    icon="sap-icon://navigation-left-arrow"
+                    tooltip="가능목록으로 넣기"
+                    press=".moveToTable1"/>
+            </VBox>
+            <t:Table
+                id="table2"
+                selectionMode="MultiToggle"
+                ariaLabelledBy="title2"
+                rows="{
+                    path: 'temporaryModel>/'
+                }"
+                noData="재료를 선택해 주십시오.">
+                <t:extension>
+                    <OverflowToolbar style="Clear">
+                        <Title id="title2" text="선택한 품목"/>
+                        <ToolbarSpacer/>
+                        <Button
+                            type="Accept"
+                            icon="sap-icon://add-product"
+                            tooltip="재고 추가"
+                            press=".addInventory"/>
+                        <Button
+                            type="Reject"
+                            icon="sap-icon://reset"
+                            tooltip="선택 초기화"
+                            press=".cartReset"/>
+                    </OverflowToolbar>
+                </t:extension>
+                <t:columns>
+                    <t:Column>
+                        <Text text="재료명" width="7rem"/>
+                        <t:template>
+                            <Text text="{temporaryModel>MaterialName}" wrapping="false" />
+                        </t:template>
+                    </t:Column>
+                    <t:Column
+                        width="7rem">
+                        <Text text="재료 가격" />
+                        <t:template>
+                            <u:Currency stringValue="{temporaryModel>Price}" currency="{temporaryModel>Unit}"/>
+                        </t:template>
+                    </t:Column>
+                    <t:Column
+                        width="7rem">
+                        <Text text="총 가격" />
+                        <t:template>
+                            <u:Currency stringValue="{= ${temporaryModel>Price} * ${temporaryModel>MaterialCnt} }" currency="{temporaryModel>Unit}"/>
+                        </t:template>
+                    </t:Column>
+                    <t:Column
+                        hAlign="End"
+                        width="7rem">
+                        <Text text="개수" />
+                        <t:template>
+                            <StepInput value="{temporaryModel>MaterialCnt}" description="EA" min="1" step="1" change="_updateTotalAmount"/>
+                        </t:template>
+                    </t:Column>
+                </t:columns>
+            </t:Table>
+        </HBox>
     </Panel>
 </core:FragmentDefinition>

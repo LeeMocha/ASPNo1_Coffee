@@ -201,43 +201,15 @@
 				"measureAxis": "size",
 				"dimensionAxis": "color",
 				"data": {
-					"json": {
-						"measures": [
-							{
-								"measureName": "Coffee",
-								"value": 1564235.29
-							},
-							{
-								"measureName": "Non-Coffee",
-								"value": 157913.07
-							},
-							{
-								"measureName": "Beverage",
-								"value": 1085567.22
-							},
-							{
-								"measureName": "Tea",
-								"value": 245609.486884
-							},
-							{
-								"measureName": "Foods",
-								"value": 345292.06
-							},
-							{
-								"measureName": "ETC",
-								"value": 82922.07
-							}
-						]
-					},
-					"path": "/measures"
+					"path": "categoryModel>/data"
 				},
 				"dimensions": [{
-					"label": "Measure Name",
-					"value": "{measureName}"
+					"label": "품목",
+					"value": "{categoryModel>Category}"
 				}],
 				"measures": [{
-					"label": "Value",
-					"value": "{value}"
+					"label": "판매량",
+					"value": "{categoryModel>categoryCnt}"
 				}]
 			}
 		}

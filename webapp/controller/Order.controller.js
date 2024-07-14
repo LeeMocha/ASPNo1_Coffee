@@ -161,6 +161,10 @@ function(Controller, JSONModel, Menu, MenuItem, MessageBox, Filter, Dialog, Butt
             var that = this
             var oMainModel = this.getOwnerComponent().getModel('Order');
             var cartData = this.getModel('cartModel').getData();
+            cartData.map(orderitem=>{
+                delete orderitem.state;
+                delete orderitem.MenuState;
+            })
             var orderData = {OrderDate : new Date(), to_OrderItem: cartData}
 
             if(cartData.length > 0 ){

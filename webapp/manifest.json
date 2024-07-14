@@ -69,6 +69,15 @@
           "localUri": "localService/metadata.xml",
           "odataVersion": "2.0"
         }
+      },
+      "menuSalesService": {
+        "uri": "/sap/opu/odata/sap/YAPI_DASHBOARD_JH/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/metadata.xml",
+          "odataVersion": "2.0"
+        }
       }
     },
     "crossNavigation": {
@@ -156,6 +165,11 @@
       },
       "Category": {
         "dataSource": "categoryService",
+        "preload": true,
+        "settings": {}
+      },
+      "MenuSales": {
+        "dataSource": "menuSalesService",
         "preload": true,
         "settings": {}
       }
