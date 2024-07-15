@@ -6,6 +6,7 @@ sap.ui.define([
     "aspno1coffee/controller/RevealGrid/RevealGrid",
     "sap/ui/core/library",
     "sap/ui/model/Filter",
+    "sap/ui/model/FilterOperator",
     'sap/ui/core/Fragment',
     "sap/m/MessageBox",
     "sap/m/Dialog",
@@ -14,7 +15,7 @@ sap.ui.define([
     "sap/m/StandardListItem",
     "sap/m/MessageToast",
 ],
-function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary, Filter, Fragment, 
+function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary, Filter, FilterOperator, Fragment, 
     MessageBox, Dialog, Button, List, StandardListItem, MessageToast) {
     "use strict";
 
@@ -78,11 +79,12 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
         },
 
         setOriginModel: function() {
-            this.getCategoryData();
             this.getInventoryData();
             this.getOrderData();
             this.getPaymentData();
+            this.getCategoryData();
             this.getMenuSalesData();
+            this.getOrderDataForChart();
         },
 
         setSubModel: function() {
@@ -274,7 +276,6 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
                         });
         
                         this.getView().setModel(oCategoryModel, "categoryModel");
-        
                         var oVizFrame = this.getView().byId("donutFrame");
                         oVizFrame.setModel(oCategoryModel, "categoryModel");
                         oVizFrame.setVizType("donut");
@@ -363,6 +364,11 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
 
         refresh: function(check) {
             switch (this._selectedTabKey) {
+                case '데시보드' :
+                    this.getCategoryData();
+                    this.getMenuSalesData();
+                    this.getOrderDataForChart();
+                    break;
                 case '주문현황' : 
                     this.getOrderData();
                     this.getView().byId('datePicker').setValue('');
@@ -393,13 +399,111 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
 			RevealGrid.destroy("grid1", this.getView());
 		},
 
+        getOrderDataForChart: function() {
+            var oMainModel = this.getOwnerComponent().getModel('Order');
+            var aDataPromises = [];
+            var dateMap = {};
+        
+            // 오늘 날짜 구하기
+            var today = new Date();
+            today.setHours(0, 0, 0, 0);
+        
+            // 7일 전부터 어제까지의 날짜 배열 만들기
+            var dateArray = [];
+            for (var i = 7; i >= 0; i--) { // 0일 전도 포함되게 변경
+                var date = new Date(today);
+                date.setDate(today.getDate() - i);
+                dateArray.push(this._formatDate(date));
+                dateMap[this._formatDate(date)] = { orderDate: this._formatDate(date), totalAmount: 0, totalBomAmount: 0 };
+            }
+        
+            // 각 날짜별로 데이터를 읽어오는 비동기 처리 설정
+            dateArray.forEach(function(formattedDate) {
+                var filter = [
+                    new Filter('OrderCode', FilterOperator.StartsWith, formattedDate)
+                ];
+                var promise = this._getODataRead(oMainModel, '/Ordered', filter).then(function(aGetData) {
+                    var totalAmount = 0;
+                    var totalBomAmount = 0;
+        
+                    aGetData.forEach(function(order) {
+                        totalAmount += parseInt(order.TotalAmount);
+                        totalBomAmount += parseInt(order.BomAmount);
+                    });
+        
+                    return {
+                        orderDate: formattedDate,
+                        totalAmount: totalAmount,
+                        totalBomAmount: totalBomAmount
+                    };
+                });
+        
+                aDataPromises.push(promise);
+            }.bind(this));
+        
+            // 모든 데이터를 한꺼번에 처리
+            Promise.all(aDataPromises).then(function(aResults) {
+                // 결과를 날짜별로 매핑
+                var resultMap = {};
+                aResults.forEach(function(result) {
+                    resultMap[result.orderDate] = result;
+                });
+        
+                // 누락된 날짜에 대해 빈 데이터 추가
+                dateArray.forEach(function(formattedDate) {
+                    if (!resultMap[formattedDate]) {
+                        resultMap[formattedDate] = dateMap[formattedDate];
+                    }
+                });
+        
+                // 순서대로 정렬된 결과 배열 만들기
+                var chartData = dateArray.map(function(formattedDate) {
+                    return resultMap[formattedDate];
+                });
+        
+                this.setModel(new JSONModel({data : chartData}), 'weekendModel');
+        
+                // 차트 속성 설정
+                var oVizFrame = this.getView().byId("lineFrame");
+                var vizProperties = {
+                    title: {
+                        text: "일별 주문 금액 및 BOM 금액",
+                        visible: true
+                    },
+                    plotArea: {
+                        dataLabel: {
+                            visible: true,
+                            formatString: "#,##0"
+                        }
+                    },
+                    categoryAxis: {
+                        title: {
+                            visible: true,
+                            text: "날짜"
+                        }
+                    },
+                    valueAxis: {
+                        title: {
+                            visible: true,
+                            text: "금액"
+                        }
+                    }
+                };
 
-
-
-
-
-
-
+                // oVizFrame.setModel(new JSONModel({data : chartData}), "weekendModel");
+                oVizFrame.setVizProperties(vizProperties);
+        
+            }.bind(this)).catch(function(error) {
+                MessageBox.error("Error fetching order data: " + error.message);
+            });
+        },
+        
+        _formatDate: function(date) {
+            var dd = String(date.getDate()).padStart(2, '0');
+            var mm = String(date.getMonth() + 1).padStart(2, '0');
+            var yyyy = date.getFullYear();
+            return yyyy + mm + dd;
+        },
 
         /////////////////// ORDERLIST ///////////////////
 
