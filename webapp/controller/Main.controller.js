@@ -571,11 +571,7 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
                     this.getPaymentData(aFilters);
                     break;
             }
-
- 
         },
-        
-
 
         /////////////////// INVENTORY ///////////////////
 
@@ -657,12 +653,13 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
             this._getODataUpdate(oMainModel, "/Inventory(guid'" + updateInven.Uuid + "')", updateInven).done(function(aGetData) {
                 if (that.flag) {
                     // 지출내역에 정보 저장
-                    that.insertPayment(null, {
+                    that.insertPayment({
                         PaymentDescription: PaymentDescription,
                         PaymentAmount: ''+PaymentAmount
                     });
                     that.refresh(true);
                     that._closeDialog();
+                    MessageBox.alert("지출 내역이 입력되었습니다.");
                 } else {
                     that._closeDialog();
                     that.refresh();
@@ -727,99 +724,97 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
             this.setModel(new JSONModel(aTargetData), targetModelName);
 
             var SortOrder = coreLibrary.SortOrder;
-            var oProductNameColumn2 = this.getView().byId("ProductCode2");
-            var oProductNameColumn3 = this.getView().byId("ProductCode3");
+            var oProductNameColumn2 = this.getView().byId("table1");
+            var oProductNameColumn3 = this.getView().byId("table2");
             this.getView().byId("table1").sort(oProductNameColumn2, SortOrder.Ascending);
             this.getView().byId("table2").sort(oProductNameColumn3, SortOrder.Ascending);
 
         },
 
-        _updateTotalAmount: function() {
-            // 카트 모델과 데이터를 가져옴
-            var temporaryData = this.getModel("temporaryModel").getData();
-            
-            // 총 금액을 계산
-            var iTotalAmount = 0;
-            temporaryData.map(item => {
-                iTotalAmount += item.Price * item.MaterialCnt;
-            });
-            
-            // 총 금액 모델에 갱신
-            var oTotalAmountModel = this.getView().getModel("temporaryModel");
-            oTotalAmountModel.setProperty("/totalAmount", iTotalAmount);
-        },
-
         addInventory: function() {
             var oMainModel = this.getOwnerComponent().getModel();
             var temporaryData = this.getView().getModel("temporaryModel").getData();
-
-            if(temporaryData.length <= 0) {
+        
+            if (temporaryData.length <= 0) {
                 MessageToast.show("선택하신 상품이 없습니다.");
                 return;
             }
-
+        
             var that = this;
             MessageBox.confirm("선택한 재료들을 재고로 추가합니다.", {
                 actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
                 emphasizedAction: MessageBox.Action.OK,
-                onClose: function (sAction) {
-                    if(sAction === 'OK'){
-                        temporaryData.map( Material => {
-                            var newStock = {
-                                MaterialUuid : Material.Uuid,
-                                InventoryQuantity : '' + Material.MaterialQuantity*Material.MaterialCnt,
-                                Qunit : Material.Qunit
-                            }
-    
-                            that._getODataCreate(oMainModel, '/Inventory', newStock).done(function(aReturn){
-                                var PaymentDescription = '재료 구입(' + Material.MaterialName + ') ' + Material.MaterialQuantity + Material.Qunit + ' * ' + Material.MaterialCnt + 'EA';
-                                var PaymentAmount = Material.totalAmount;
-                                that.insertPayment(null, {
-                                    PaymentDescription: PaymentDescription,
-                                    PaymentAmount: ''+PaymentAmount
+                onClose: async function(sAction) {
+                    if (sAction === 'OK') {
+                        try {
+                            var createPromises = temporaryData.map(function(Material) {
+                                var newStock = {
+                                    MaterialUuid: Material.Uuid,
+                                    InventoryQuantity: '' + Material.MaterialQuantity * Material.MaterialCnt,
+                                    Qunit: Material.Qunit
+                                };
+        
+                                return that._getODataCreate(oMainModel, '/Inventory', newStock).then(function(aReturn) {
+                                    var PaymentDescription = '재료 구입(' + Material.MaterialName + ') ' + Material.MaterialQuantity + Material.Qunit + ' * ' + Material.MaterialCnt + 'EA';
+                                    var PaymentAmount = Material.totalAmount;
+                                    return that.insertPayment({
+                                        PaymentDescription: PaymentDescription,
+                                        PaymentAmount: '' + PaymentAmount
+                                    });
                                 });
-                                that.refresh(true);
-                            }.bind(this)).fail(()=>{
-                                MessageBox.information("Create Fail");
-                            }).always(()=>{
-
-                            })
-                        })
+                            });
+        
+                            await Promise.all(createPromises);
+        
+                            MessageBox.alert('지출 내역이 입력되었습니다.');
+                            that.refresh(true);
+                        } catch (error) {
+                            MessageBox.error('지출 내역 입력 중 오류가 발생했습니다: ' + error.message);
+                        }
                     }
                 },
                 dependentOn: this.getView()
             });
-
+        
             this.setModel(new JSONModel([]), 'temporaryModel');
-
         },
         
         //////////////////// PAYMENT ////////////////////
-        
-        insertPayment: function(oEvent, Material = undefined) {
-            var oMainModel = this.getOwnerComponent().getModel('Payment');
-            var that = this;
-            var paymentInput = {};
-            if (Material) {
-                paymentInput = Material;
-            } else {
-                paymentInput = this.getModel('paymentInputModel').getData();
-                if( !paymentInput.PaymentDescription || !paymentInput.PaymentAmount ) {
-                    console.log(paymentInput);
-                    MessageBox.alert('지출 상세 내역을 모두 입력 바랍니다.');
-                    return; 
-                }
-            }
-            console.log(paymentInput);
-            this._getODataCreate(oMainModel, "/Payment", paymentInput).done(function(aGetData) {
+        addPayment: async function(oEvent) {
+            try {
+                await this.insertPayment();
                 MessageBox.alert('지출 내역이 입력되었습니다.');
                 this.refresh();
-            }.bind(this)).fail(function() {
-                MessageBox.information("Read Fail");
-            }).always(function() {
-            });
+            } catch (error) {
+                MessageBox.error('지출 내역 입력 중 오류가 발생했습니다: ' + error.message);
+            }
         },
         
-
+        insertPayment: function(material) {
+            return new Promise((resolve, reject) => {
+                var oMainModel = this.getOwnerComponent().getModel('Payment');
+                var paymentInput = {};
+                if (material) {
+                    paymentInput = material;
+                } else {
+                    paymentInput = this.getModel('paymentInputModel').getData();
+                    if (!paymentInput.PaymentDescription || !paymentInput.PaymentAmount) {
+                        console.log(paymentInput);
+                        MessageBox.alert('지출 상세 내역을 모두 입력 바랍니다.');
+                        return reject(new Error('지출 상세 내역이 누락되었습니다.'));
+                    }
+                }
+                console.log(paymentInput);
+                
+                this._getODataCreate(oMainModel, "/Payment", paymentInput)
+                    .done(function(aGetData) {
+                        resolve(aGetData);
+                    }.bind(this))
+                    .fail(function() {
+                        MessageBox.information("Read Fail");
+                        reject(new Error('지출 내역 입력 실패'));
+                    });
+            });
+        }
     });
 });

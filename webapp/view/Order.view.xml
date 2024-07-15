@@ -88,7 +88,7 @@ height="100%">
 				</l:SplitPane>
 				<l:SplitPane >
                     <l:layoutData>
-						<l:SplitterLayoutData size="14rem" />
+						<l:SplitterLayoutData size="14.5rem" />
 					</l:layoutData>
                     <Panel height="100%">
                         <VBox>

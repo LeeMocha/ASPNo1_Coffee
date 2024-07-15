@@ -24,7 +24,7 @@ height="100%">
         </f:SimpleForm>
         <OverflowToolbar style="Clear">
             <ToolbarSpacer></ToolbarSpacer>
-            <Button text="내역 저장" press="insertPayment" type="Emphasized" />
+            <Button text="내역 저장" press="addPayment" type="Emphasized" />
         </OverflowToolbar>
     </Panel>
     <Panel >

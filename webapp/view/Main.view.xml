@@ -43,8 +43,6 @@ height="100%">
 						</HeaderContainer >
 					</f:expandedContent>
 					<f:actions>
-						<Button text="수정" type="Emphasized"/>
-						<Button icon="sap-icon://action" type="Transparent"/>
 					</f:actions>
 				</f:DynamicPageTitle>
 			</f:title>
