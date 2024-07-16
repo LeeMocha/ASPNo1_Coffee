@@ -722,7 +722,7 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
 
             this.setModel(new JSONModel(aSourceData), sourceModelName);
             this.setModel(new JSONModel(aTargetData), targetModelName);
-
+ 
             var SortOrder = coreLibrary.SortOrder;
             var oProductNameColumn2 = this.getView().byId("table1");
             var oProductNameColumn3 = this.getView().byId("table2");
