@@ -115,11 +115,11 @@ height="100%">
 					<f:GridContainerItemLayoutData rows="4" columns="15" />
 				</f:layoutData>
 			</f:Card>
+			<!-- <f:Card></f:Card>
 			<f:Card></f:Card>
 			<f:Card></f:Card>
 			<f:Card></f:Card>
-			<f:Card></f:Card>
-			<f:Card></f:Card>
+			<f:Card></f:Card> -->
 		</f:GridContainer>
 	</ScrollContainer>
 </core:FragmentDefinition>

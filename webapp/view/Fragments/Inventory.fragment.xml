@@ -15,7 +15,7 @@ height="100%">
                     <Button icon="sap-icon://refresh" press="refresh"></Button>
                 </OverflowToolbar>
             </headerToolbar>
-               <columns>
+                <columns>
                     <Column minScreenWidth="Tablet" demandPopin="true" width="12rem" popinDisplay="Inline">
                         <Label text="재료명" design="Bold" />
                     </Column>
@@ -26,7 +26,10 @@ height="100%">
                         <Label text="개수" design="Bold" />
                     </Column>
                     <Column hAlign="End" minScreenWidth="Tablet" demandPopin="true" width="12rem" popinDisplay="Inline">
-                        <Label text="총 남은 량" design="Bold"/>
+                        <Label text="총 재고" design="Bold"/>
+                    </Column>
+                    <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="true" width="6rem" popinDisplay="Inline">
+                        <Label text="재고 부족 상태" design="Bold"/>
                     </Column>
                     <Column hAlign="Center" minScreenWidth="Tablet" demandPopin="false" width="10rem" popinDisplay="Inline">
                         <Label text="KRW/unit" design="Bold"/>
@@ -46,8 +49,9 @@ height="100%">
                     <cells>
                         <Text text="{inventoryModel>MaterialName}" />
                         <ObjectNumber number="{inventoryModel>MaterialQuantity}" state="None" unit="{inventoryModel>Qunit}"/>
-                        <ObjectNumber number="{inventoryModel>baseQuantity}" state="Information" unit="EA"/>
-                        <ObjectNumber number="{inventoryModel>InventoryQuantity}" state="{inventoryModel>inventoryState}" unit="{inventoryModel>Qunit}"/>
+                        <ObjectNumber number="{inventoryModel>baseQuantity}" unit="EA"/>
+                        <ObjectNumber number="{inventoryModel>InventoryQuantity}" unit="{inventoryModel>Qunit}"/>
+                        <ObjectStatus icon="sap-icon://circle-task-2" state="{inventoryModel>inventoryState}" />
                         <Text text="{= ${inventoryModel>Ppq} + '    ' + ${inventoryModel>Unit}}"  renderWhitespace="true"/>
                         <Text text="{= ${inventoryModel>usingRate} + '%'}" />
                         <Button icon="sap-icon://delete" press="openDialog" id="discard"/>
