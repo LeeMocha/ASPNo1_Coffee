@@ -765,7 +765,7 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
                             });
         
                             await Promise.all(createPromises);
-        
+                            that.setModel(new JSONModel([]), 'temporaryModel');
                             MessageBox.alert('지출 내역이 입력되었습니다.');
                             that.refresh(true);
                         } catch (error) {
@@ -775,8 +775,6 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
                 },
                 dependentOn: this.getView()
             });
-        
-            this.setModel(new JSONModel([]), 'temporaryModel');
         },
         
         //////////////////// PAYMENT ////////////////////
@@ -784,6 +782,7 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
             try {
                 await this.insertPayment();
                 MessageBox.alert('지출 내역이 입력되었습니다.');
+                this.setModel(new JSONModel({PaymentDescription : undefined, PaymentAmount : undefined}), 'paymentInputModel');
                 this.refresh();
             } catch (error) {
                 MessageBox.error('지출 내역 입력 중 오류가 발생했습니다: ' + error.message);
