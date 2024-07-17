@@ -55,7 +55,7 @@ height="100%">
 			<f:content>
 				<IconTabBar id="iconTabBar" class="sapUiResponsiveContentPadding" select="onTabSelect">
 					<items>
-						<IconTabFilter text="데시보드">
+						<IconTabFilter text="대시보드">
 							<core:Fragment fragmentName="aspno1coffee.view.Fragments.DashBoard" type="XML" />
 						</IconTabFilter>
 						<IconTabFilter text="주문현황">

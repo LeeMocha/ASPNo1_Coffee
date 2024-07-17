@@ -92,7 +92,7 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
             this.setModel(new JSONModel({dateVar: '', startTimeVar: '', endTimeVar: '',}), 'searchModel2');
             this.setModel(new JSONModel({PaymentDescription : undefined, PaymentAmount : undefined}), 'paymentInputModel');
             this.setModel(new JSONModel([]), 'temporaryModel');
-            this._selectedTabKey = "데시보드";
+            this._selectedTabKey = "대시보드";
         },
 
         onTabSelect: function(oEvent) {
@@ -364,7 +364,7 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
 
         refresh: function(check) {
             switch (this._selectedTabKey) {
-                case '데시보드' :
+                case '대시보드' :
                     this.getCategoryData();
                     this.getMenuSalesData();
                     this.getOrderDataForChart();
