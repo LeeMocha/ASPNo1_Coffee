@@ -91,6 +91,24 @@
             "parameters": {},
             "additionalParameters": "allowed"
           }
+        },
+        "clc-aspno1coffee": {
+          "semanticObject": "clc",
+          "action": "aspno1coffee",
+          "title": "{{flpTitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        },
+        "clc-aspno1coffee2": {
+          "semanticObject": "clc",
+          "action": "aspno1coffee2",
+          "title": "{{flpTitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
         }
       }
     }

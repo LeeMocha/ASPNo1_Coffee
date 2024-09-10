@@ -17,8 +17,8 @@ builder:
           destination: ZAM_DEV_SAML_ASSERTION
           url: https://my407000-api.s4hana.cloud.sap
         app:
-          name: ZASPNCJH
-          description: ASPNo1 Coffee
+          name: ZASPNCJH2
+          description: ASPNo1 Coffee2
           package: Z_CLC
           transport: ZAMK900421
         exclude:
