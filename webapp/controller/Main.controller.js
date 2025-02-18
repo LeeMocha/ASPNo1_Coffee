@@ -16,7 +16,7 @@ sap.ui.define([
     "sap/m/MessageToast",
 ],
 function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary, Filter, FilterOperator, Fragment, 
-    MessageBox, Dialog, Button, List, StandardListItem, MessageToast) {
+    MessageBox, Dialog, Button, List, StandardListItem, MessageToast, mobileLibrary) {
     "use strict";
 
 	var DropLayout = coreLibrary.dnd.DropLayout;
@@ -467,7 +467,7 @@ function (Controller, JSONModel, DragInfo, GridDropInfo, RevealGrid, coreLibrary
                 var oVizFrame = this.getView().byId("lineFrame");
                 var vizProperties = {
                     title: {
-                        text: "일별 주문 금액 및 BOM 금액",
+                        text: "일별 총 판매 금액 및 원가",
                         visible: true
                     },
                     plotArea: {
